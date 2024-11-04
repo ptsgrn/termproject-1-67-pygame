@@ -3,6 +3,7 @@ from pygame.locals import *
 from dataclasses import dataclass
 from typing import Literal
 import random
+from .ui_elements import TextElement
 
 RESOLUTION = (800, 600)
 FPS = 60
@@ -89,7 +90,8 @@ class Game:
         self.game_objects.append(GameController())
         self.game_objects.append(Player())
 
-        self.state: Literal["running", "game_over"] = "running"
+        self.state: Literal["welcome", "running", "game_over", "game_end"] = "running"
+        self.level: int = 1
 
     def run(self):
         while True:
