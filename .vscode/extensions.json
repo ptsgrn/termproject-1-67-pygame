@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.autopep8",
+    "njpwerner.autodocstring",
+    "donjayamanne.python-environment-manager",
+    "tushortz.pygame-snippets"
+  ]
+}
