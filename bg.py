@@ -1,4 +1,5 @@
 import pygame
+import input
 
 pygame.init()
 
@@ -11,6 +12,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        else event.type == pygame.KEYDOWN
     #draw code
     screen.fill(clear_color)
 
