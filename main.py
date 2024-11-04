@@ -82,7 +82,7 @@ class GameController:
 class Game:
     def __init__(self) -> None:
         # Init screen
-        self.screen = pygame.display.set_mode(RESOLUTION)
+        self.screen = pygame.display.set_mode(RESOLUTION, pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
 
         self.game_objects: list = [Ball(), Ball(100), Ball(y=200)]
