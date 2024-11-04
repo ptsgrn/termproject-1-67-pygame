@@ -1,19 +1,21 @@
 import pygame
-from pygame.locals import *
+from pygame.locals import *  # noqa
+from pygame.color import Color
 from dataclasses import dataclass
 from typing import Literal
-import random
-from .ui_elements import TextElement
+
+from chulalife.ui_elements import StaticTextElement, create_surface_with_text
 
 RESOLUTION = (800, 600)
 FPS = 60
 
 # Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BLUE = (0, 0, 255)
+WHITE = Color(255, 255, 255)
+BLACK = Color(0, 0, 0)
+BLUE = Color(0, 0, 255)
 
 pygame.init()
+# pygame.display.set_caption('')
 
 
 @dataclass
@@ -90,22 +92,27 @@ class Game:
         self.game_objects.append(GameController())
         self.game_objects.append(Player())
 
-        self.state: Literal["welcome", "running", "game_over", "game_end"] = "running"
+        self.state: Literal["welcome", "running",
+                            "game_over", "game_end"] = "welcome"
         self.level: int = 1
 
     def run(self):
         while True:
             self.handleEvents()
 
-            if self.state != "game_over":
-                for game_object in self.game_objects:
-                    game_object.update(self.game_objects)
-                    if game_object.element_type == "player":
-                        self.state = game_object.is_game_over and "game_over" or "running"
-
             self.screen.fill(WHITE)
-            for game_objects in self.game_objects:
-                game_objects.draw(self.screen)
+
+            if self.state == "welcome":
+                self.screen.fill(WHITE)
+                # text_rect = text.get_rect(
+                #     center=pygame.display.get_surface().get_rect().center)
+                screen_center = pygame.display.get_surface().get_rect().center
+                create_surface_with_text(
+                    "Welcome to the game", 50, WHITE, BLACK).blit(self.screen, screen_center)
+                welcomeText = create_surface_with_text(
+                    "ยินดีต้อนรับสู่ Chula life", 50, BLUE, font_type="display")
+                self.screen.blit(welcomeText, (screen_center[0], screen_center[1] + 50))
+                pygame.display.flip()
 
             self.clock.tick(FPS)
             pygame.display.flip()
