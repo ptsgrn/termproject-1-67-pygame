@@ -1,12 +1,16 @@
-import pygame
-from pygame.locals import *  # noqa
-from pygame.color import Color
 from dataclasses import dataclass
 from typing import Literal
 
-from chulalife.ui_elements import StaticTextElement, create_surface_with_text
+# PyGame imports
+import pygame as pg
+from pygame.color import Color
 
-RESOLUTION = (800, 600)
+# Internal imports
+from chulalife.ui_elements import ImageButton
+from chulalife.game_state import GameState
+from chulalife.background import Background
+
+RESOLUTION = (1200, 900)
 FPS = 60
 
 # Colors
@@ -14,30 +18,7 @@ WHITE = Color(255, 255, 255)
 BLACK = Color(0, 0, 0)
 BLUE = Color(0, 0, 255)
 
-pygame.init()
-# pygame.display.set_caption('')
-
-
-@dataclass
-class Ball:
-    x: float = RESOLUTION[0] / 2
-    y: float = RESOLUTION[1] / 2
-    dx: float = 1
-    dy: float = 1
-    radius: int = 15
-    element_type: Literal["ball"] = "ball"
-
-    def draw(self, screen):
-        pygame.draw.circle(
-            screen, BLUE, (int(self.x), int(self.y)), self.radius)
-
-    def update(self, game_objects):
-        self.x += self.dx
-        self.y += self.dy
-        if (self.x - self.radius <= 0 or self.x + self.radius >= RESOLUTION[0]):
-            self.dx *= -1
-        if (self.y - self.radius <= 0 or self.y + self.radius >= RESOLUTION[1]):
-            self.dy *= -1
+pg.init()
 
 
 @dataclass
@@ -49,11 +30,11 @@ class Player:
     is_game_over: bool = False
 
     def draw(self, screen):
-        pygame.draw.circle(
+        pg.draw.circle(
             screen, BLACK, (self.x, self.y), self.radius)
 
     def update(self, game_objects):
-        mouse = pygame.mouse.get_pos()
+        mouse = pg.mouse.get_pos()
         self.x = mouse[0]
         self.y = mouse[1]
         for go in game_objects:
@@ -65,62 +46,63 @@ class Player:
 @dataclass
 class GameController:
     interval: int = 1
-    next: float = pygame.time.get_ticks() + (2 * 1000)
+    next: float = pg.time.get_ticks() + (2 * 1000)
     element_type: str = "controller"
     score: int = 0
-    score_text = pygame.font.Font(None, 28)
+    score_text = pg.font.Font(None, 28)
 
-    def update(self, game_objects):
-        if self.next < pygame.time.get_ticks():
-            self.next = pygame.time.get_ticks() + (self.interval * 1000)
-            game_objects.append(
-                Ball(dx=random.random() * 2, dy=random.random()*2))
-            self.score += 1
+    def update(self):
+        pass
 
     def draw(self, screen):
-        screen.blit(self.score_text.render(
-            str(self.score), True, BLACK), (5, 5))
+        pass
 
 
 class Game:
     def __init__(self) -> None:
         # Init screen
-        self.screen = pygame.display.set_mode(RESOLUTION, pygame.FULLSCREEN)
-        self.clock = pygame.time.Clock()
+        self.screen = pg.display.set_mode(RESOLUTION, pg.FULLSCREEN)
+        self.clock = pg.time.Clock()
 
-        self.game_objects: list = [Ball(), Ball(100), Ball(y=200)]
-        self.game_objects.append(GameController())
-        self.game_objects.append(Player())
-
-        self.state: Literal["welcome", "running",
-                            "game_over", "game_end"] = "welcome"
+        self.state: GameState = GameState.TITLE
         self.level: int = 1
 
     def run(self):
         while True:
             self.handleEvents()
 
-            self.screen.fill(WHITE)
-
-            if self.state == "welcome":
-                self.screen.fill(WHITE)
-                # text_rect = text.get_rect(
-                #     center=pygame.display.get_surface().get_rect().center)
-                screen_center = pygame.display.get_surface().get_rect().center
-                create_surface_with_text(
-                    "Welcome to the game", 50, WHITE, BLACK).blit(self.screen, screen_center)
-                welcomeText = create_surface_with_text(
-                    "ยินดีต้อนรับสู่ Chula life", 50, BLUE, font_type="display")
-                self.screen.blit(welcomeText, (screen_center[0], screen_center[1] + 50))
-                pygame.display.flip()
+            screen = self.screen
+            if self.state == GameState.QUIT:
+                pg.quit()
+            elif self.state == GameState.TITLE:
+                screen_center = pg.display.get_surface().get_rect().center
+                bg = Background(
+                    'assets/level/welcome/Start_BG.png', [0, 0])
+                screen.blit(bg.image, bg.rect)
+                elements = pg.sprite.Group()
+                start_button = ImageButton(
+                    image_filename="assets/level/welcome/Button_normal.png",
+                    hover_file_name="assets/level/welcome/Button_big.png",
+                    active_file_name="assets/level/welcome/Button_click.png",
+                    hover_scale_factor=1.3,
+                    active_scale_factor=1.25,
+                    h=200,
+                    w=200,
+                    x=screen_center[0],
+                    # Roughly 2/3 down the screen
+                    y=screen_center[1] + screen_center[1] // 2
+                )
+                elements.add(start_button)
+                elements.update()
+                elements.draw(screen)
 
             self.clock.tick(FPS)
-            pygame.display.flip()
+            pg.display.flip()
 
     def handleEvents(self):
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
 
 
 if __name__ == "__main__":
