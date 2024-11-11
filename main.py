@@ -10,7 +10,7 @@ from chulalife.ui_elements import ImageButton
 from chulalife.game_state import GameState
 from chulalife.background import Background
 
-RESOLUTION = (1200, 900)
+RESOLUTION = (1920, 1080)
 FPS = 60
 
 # Colors
