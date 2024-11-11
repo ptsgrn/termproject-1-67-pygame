@@ -61,7 +61,11 @@ class GameController:
 class Game:
     def __init__(self) -> None:
         # Init screen
-        self.screen = pg.display.set_mode(RESOLUTION, pg.FULLSCREEN)
+        pg.init()
+        pg.display.set_caption('CHULALIFE')
+        currentRez = (pg.display.Info().current_w,
+                      pg.display.Info().current_h)
+        self.screen = pg.display.set_mode(currentRez, pg.SCALED)
         self.clock = pg.time.Clock()
 
         self.state: GameState = GameState.TITLE
