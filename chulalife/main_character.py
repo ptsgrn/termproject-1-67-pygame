@@ -1,10 +1,11 @@
-import pygame 
+import pygame
 
-pygame init()
+
+
 player_image = pygame.image.load('')
-player
+player_rect = player_image.get_rect() 
 
- 
+
 def move_player(keys):
     if keys[pygame.K_LEFT]:
         player_pos[0] -= 5
