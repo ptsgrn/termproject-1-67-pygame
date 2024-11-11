@@ -1,38 +1,47 @@
-#set up file สำหรับเกมด่านแรก 
+import os
 import pygame
-import input
-from player import Player 
-from sprite import sprites 
-
-
+from player import Player
+from sprite import sprites
 
 pygame.init()
 
-#set up screen 
+# Set up screen
 pygame.display.set_caption("Chula life")
 screen = pygame.display.set_mode((800, 600), pygame.FULLSCREEN)
 clear_color = (30, 150, 50)
 running = True
-player = Player("images/player.png", 400, 300)
 
-#Gameloop 
+# Verify the image path
+image_path = os.path.join(os.getcwd(), "chulalife/ด่าน1/image/player.png")
+if not os.path.exists(image_path):
+    print(f"Image file not found: {image_path}")
+    running = False  # Exit if the image is not found
+
+# Initialize player
+if running:  # Only initialize if the game is set to run
+    player = Player(image_path, 400, 300)
+
+# Game loop
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            input.keys_down.add(event.key)
-        elif event.type == pygame.KEYUP:
-            input.keys_down.remove(event.key)
+            if event.key == pygame.K_ESCAPE:  # Exit fullscreen with ESC
+                running = False
 
-    #update Code
-    player.update()
-
-    #Drawcode
+    # Clear screen
     screen.fill(clear_color)
-    for s in sprites:
-        s.draw(screen)
 
+    # Draw and update player and sprites
+    if running:
+        player.draw(screen)
+        player.update()  # Update the player if it has an update method
+
+    for sprite in sprites:
+        sprite.draw(screen)
+
+    # Update display
     pygame.display.flip()
-pygame.quit()
 
+pygame.quit()
