@@ -1,4 +1,5 @@
-from typing import Literal
+from typing import Literal, Any
+import types
 import pygame
 from pygame.sprite import Sprite
 from pygame.rect import Rect
@@ -178,6 +179,7 @@ class ImageButton(Sprite):
         self.images = [image for image in self.images if image]
 
         self.action = action
+        self.clicked = False
 
         super().__init__()
 
@@ -205,11 +207,16 @@ class ImageButton(Sprite):
             return self._active_image.get_rect(center=self._rect.center)
         return self.default_image.get_rect(center=self._rect.center)
 
-    def update(self):
+    def update(self, events: list[pygame.event.EventType]) -> Any | None:
         self.mouse_over = self.rect.collidepoint(pygame.mouse.get_pos())
         self.mouse_down = pygame.mouse.get_pressed()[0]
-        if self.mouse_over and self.mouse_down and self.action:
-            return self.action
+        if self.mouse_over:
+            for event in events:
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.onClick()
+
+    def onClick(self):
+        return self.action() if isinstance(self.action, (types.FunctionType)) else self.action
 
     def draw(self, surface: Surface):
         surface.blit(self.image, self.rect)
@@ -231,27 +238,20 @@ def main():
         active_file_name="assets/level/welcome/Button_click.png",
         hover_scale_factor=1.3,
         active_scale_factor=1.2,
-    )
-
-    # create a ui element
-    ui_element = TextButton(
-        center_position=(400, 450),
-        font_size=30,
-        bg_rgb=None,
-        text_rgb=BLUE,
-        text="Hello World",
+        action=lambda: print("clicked")
     )
 
     # main loop
     while True:
         screen.fill(WHITE)
+        events = pygame.event.get()
         elements = pygame.sprite.Group()
         elements.add(image_button)
         # elements.add(ui_element)
-        elements.update()
+        elements.update(events)
         elements.draw(screen)
         pygame.display.flip()
-        for event in pygame.event.get():
+        for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
