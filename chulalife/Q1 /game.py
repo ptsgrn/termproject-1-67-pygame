@@ -1,9 +1,8 @@
-#set up file สำหรับเกมด่านแรก 
+##set up file สำหรับเกมด่านแรก 
 import pygame
 import input
 from player import Player 
 from sprite import Sprite
-
 
 pygame.init()
 
@@ -12,7 +11,9 @@ pygame.display.set_caption("Chula life")
 screen = pygame.display.set_mode((800, 600), pygame.FULLSCREEN)
 clear_color = (30, 150, 50)
 running = True
-player = Player("chulalife/ด่าน1/image/player.png", 400, 300)
+
+# Correct the file path
+player = Player("chulalife/Q1/image/player.png", 400, 300)
 
 #Gameloop 
 while running:
@@ -27,9 +28,10 @@ while running:
     #update Code
     player.update()
 
-    #Drawcode
+    # Draw code
     screen.fill(clear_color)
+    player.draw(screen)
 
     pygame.display.flip()
-pygame.quit()
 
+pygame.quit()
