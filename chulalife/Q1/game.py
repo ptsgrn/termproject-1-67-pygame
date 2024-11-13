@@ -29,4 +29,6 @@ while running:
         s.draw(screen)
     pygame.display.flip()
 
+    pygame.time.delay(15)
+
 pygame.quit()
