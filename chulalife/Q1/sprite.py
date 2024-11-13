@@ -4,7 +4,7 @@ sprites = []
 loaded = {}
 
 class Sprite:
-    def _init_(self, image, x, y):
+    def __init__(self, image, x, y):
         if image in loaded:
             self.image = loaded[image]
         else:
