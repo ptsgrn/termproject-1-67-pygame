@@ -17,6 +17,11 @@ class Map:
 
     #set the tiles from load data 
     self.tiles = []
+    for line in data.split("\n"):
+        row = []
+        for tile_number in line :
+            row.append(int(tile_number))
+            
 
         
 
