@@ -17,9 +17,9 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            input.key_down.add(event.key)
+            input.keys_down.add(event.key)
         elif event.type == pygame.KEYUP:
-            input.key_down.remove(event.key)
+            input.keys_down.remove(event.key)
             
     #update code 
     player.update()

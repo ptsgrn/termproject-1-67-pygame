@@ -1,4 +1,4 @@
-import pygame 
+import pygame
 
 sprites = []
 loaded = {}
@@ -10,13 +10,14 @@ class Sprite:
         else:
             self.image = pygame.image.load(image)
             loaded[image] = self.image
-            self.x = x
-            self.y = y 
-            sprites.append(self)
+        self.x = x
+        self.y = y
+        sprites.append(self)
 
     def delete(self):
         sprites.remove(self)
 
     def draw(self, screen):
         screen.blit(self.image, (self.x, self.y))
-    
+
+# Load things uniquely.
