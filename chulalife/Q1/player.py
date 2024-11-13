@@ -2,7 +2,7 @@ import pygame
 from sprite import Sprite
 from input import is_key_pressed
 
-movement_speed = 2
+movement_speed = 1
 
 class Player(Sprite):
     def __init__(self, image, x, y):
