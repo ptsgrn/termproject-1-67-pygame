@@ -112,19 +112,13 @@ class LevelOne(Level):
         # Check for interaction with objects
         self.check_interaction()
 
-    def handle_events(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            for button in self.buttons:
-                if button.is_clicked(mouse_pos):
-                    return button.action()
-
     def check_interaction(self):
         # Check if player collides with any object
         for obj in self.objects:
             if self.player.rect.colliderect(obj):
-                print("Interacted with an object!")
-
+                print(f"Player collided with object at {obj}")
+            else:
+                print(f"Player did not collide with object at {obj}")
 
 class LevelTwo(Level):
     def __init__(self, game):
