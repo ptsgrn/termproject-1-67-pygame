@@ -45,9 +45,9 @@ class WelcomeScreen(Level):
             y=HEIGHT // 2 + HEIGHT // 4,
             w=300,
             h=300,
-            image_filename="assets/level/welcome/Button_normal.png",
-            hover_file_name="assets/level/welcome/Button_big.png",
-            active_file_name="assets/level/welcome/Button_click.png",
+            image_filename="assets/scene/welcome/Button_normal.png",
+            hover_file_name="assets/scene/welcome/Button_big.png",
+            active_file_name="assets/scene/welcome/Button_click.png",
             hover_scale_factor=1.3,
             active_scale_factor=1.25,
             action=lambda: self.game.set_level(LevelOne(self.game))
@@ -55,10 +55,10 @@ class WelcomeScreen(Level):
         self.buttons.append(start_button)
 
     def draw(self):
-        StaticBackground("assets/level/welcome/startbg.png",
+        StaticBackground("assets/scene/welcome/startbg.png",
                          screen)
         bg_image, bg_rect = scale_fit(pygame.image.load(
-            "assets/level/welcome/startbg.png"), screen.get_rect())
+            "assets/scene/welcome/startbg.png"), screen.get_rect())
         screen.blit(bg_image, bg_rect)
 
         for button in self.buttons:
