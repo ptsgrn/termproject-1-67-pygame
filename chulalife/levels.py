@@ -3,7 +3,8 @@ import sys
 from .ui_elements import ImageButton, Button
 from .background import StaticBackground
 from .helper import scale_fit
-from .color import WHITE, BLUE, GREEN, RED
+from .color import WHITE, BLUE, GREEN, RED, PURPLE, YELLOW
+from .player import Player
 
 # Initialize Pygame
 pygame.init()
@@ -74,6 +75,19 @@ class LevelOne(Level):
                    lambda: self.game.set_level(LevelTwo(self.game))),
             Button(300, 500, 200, 50, "Exit", RED, lambda: "exit"),
         ]
+        self.buttons = [
+            Button(300, 500, 200, 50, "Go to Level 2", GREEN,
+                   lambda: self.game.set_level(LevelTwo(self.game))),
+            Button(550, 500, 200, 50, "Exit", RED, lambda: "exit")
+        ]
+
+        # Define interactable objects as rectangles
+        self.objects = [
+            pygame.Rect(300, 200, 60, 60),  # Yellow object
+            pygame.Rect(500, 300, 60, 60)   # Purple object
+        ]
+        self.object_colors = [YELLOW, PURPLE]
+        self.player = Player(100, 100)
 
     def draw(self):
         screen.fill(WHITE)
@@ -81,8 +95,35 @@ class LevelOne(Level):
         title_text = title_font.render("Level 1", True, BLUE)
         screen.blit(title_text, (WIDTH // 2 -
                     title_text.get_width() // 2, 100))
+
+        # Draw objects
+        for i, obj in enumerate(self.objects):
+            pygame.draw.rect(screen, self.object_colors[i], obj)
+
+        # Draw player
+        self.player.draw(screen)
+
+        # Draw buttons
         for button in self.buttons:
             button.draw(screen)
+        # Handle keyboard events for player movement
+        self.player.handle_keys()
+
+        # Check for interaction with objects
+        self.check_interaction()
+
+    def handle_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            for button in self.buttons:
+                if button.is_clicked(mouse_pos):
+                    return button.action()
+
+    def check_interaction(self):
+        # Check if player collides with any object
+        for obj in self.objects:
+            if self.player.rect.colliderect(obj):
+                print("Interacted with an object!")
 
 
 class LevelTwo(Level):
