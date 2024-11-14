@@ -21,8 +21,17 @@ class Map:
         row = []
         for tile_number in line :
             row.append(int(tile_number))
-            
+        self.tiles.append(row)
+    
+    #set the size 
+    self.tile_size = tile_size
 
+    def draw(self, screen):
+        for y, row in enumerate(self.tiles):
+            for x, tile_number in enumerate(row):
+                location = (x * self.tile_size, y * self.tile_size)
+                image = self.tile_kinds[tile_number].image
+                screen.blit(image, location)
         
 
     #set tile loaded data 
