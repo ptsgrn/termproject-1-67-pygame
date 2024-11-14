@@ -1,20 +1,10 @@
-from dataclasses import dataclass
-from typing import Literal
 import sys
-
-# PyGame imports
 import pygame
-from pygame.color import Color
 
 # Internal imports
-from chulalife.levels import WelcomeScreen
+from .levels import WelcomeScreen, Level
 
 FPS = 60
-
-# Colors
-WHITE = Color(255, 255, 255)
-BLACK = Color(0, 0, 0)
-BLUE = Color(0, 0, 255)
 
 pygame.init()
 
@@ -24,9 +14,10 @@ class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
         self.running = True
-        self.level = WelcomeScreen(self)  # Start with the Welcome Screen
+        # Start with the Welcome Screen
+        self.level: Level = WelcomeScreen(self)
 
-    def set_level(self, level):
+    def set_level(self, level: Level):
         self.level = level
 
     def run(self):

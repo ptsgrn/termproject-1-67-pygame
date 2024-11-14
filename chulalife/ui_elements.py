@@ -10,10 +10,7 @@ from pygame.image import load
 
 # Internal imports
 from .helper import scale_fit
-
-BLUE = Color(0, 0, 255)
-WHITE = Color(255, 255, 255)
-BLACK = Color(0, 0, 0)
+from .color import WHITE
 
 font_paths = {
     "display": "assets/fonts/2005_iannnnnCPU.ttf",
