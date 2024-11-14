@@ -87,7 +87,7 @@ class LevelOne(Level):
             pygame.Rect(500, 300, 60, 60)   # Purple object
         ]
         self.object_colors = [YELLOW, PURPLE]
-        self.player = Player(100, 100)
+        self.player = Player(100, 100, 60, 60)
 
     def draw(self):
         screen.fill(WHITE)
@@ -114,11 +114,10 @@ class LevelOne(Level):
 
     def check_interaction(self):
         # Check if player collides with any object
-        for obj in self.objects:
-            if self.player.rect.colliderect(obj):
-                print(f"Player collided with object at {obj}")
-            else:
-                print(f"Player did not collide with object at {obj}")
+        # for obj in self.objects:
+        #     pass
+        pass
+
 
 class LevelTwo(Level):
     def __init__(self, game):
