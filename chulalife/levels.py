@@ -5,18 +5,11 @@ from .background import StaticBackground
 from .helper import scale_fit
 from .color import WHITE, BLUE, GREEN, RED, PURPLE, YELLOW
 from .player import Player
+from .object import WarpDoor
+from .screen import WIDTH, HEIGHT, screen
 
 # Initialize Pygame
 pygame.init()
-
-screen_info = pygame.display.Info()
-
-WIDTH = screen_info.current_w
-HEIGHT = screen_info.current_h
-
-screen = pygame.display.set_mode(
-    (WIDTH, HEIGHT), pygame.SCALED | pygame.FULLSCREEN)
-pygame.display.set_caption("Chula Life")
 
 
 class Level:
@@ -70,42 +63,91 @@ class LevelOne(Level):
     def __init__(self, game):
         super().__init__(game)
         # Define level-specific buttons
-        self.buttons = [
-            Button(50, 500, 200, 50, "Go to Level 2", GREEN,
-                   lambda: self.game.set_level(LevelTwo(self.game))),
-            Button(300, 500, 200, 50, "Exit", RED, lambda: "exit"),
-        ]
-        self.buttons = [
-            Button(300, 500, 200, 50, "Go to Level 2", GREEN,
-                   lambda: self.game.set_level(LevelTwo(self.game))),
-            Button(550, 500, 200, 50, "Exit", RED, lambda: "exit")
-        ]
+        self.buttons = []
 
         # Define interactable objects as rectangles
+
+        # create transparent warp door
+        warp_door = pygame.Surface((100, 300), pygame.SRCALPHA)
+
+        self.player = Player(100, 350, int(WIDTH/5.5),
+                             int(HEIGHT/5.5), speed=min(WIDTH, HEIGHT) // 50)
+
         self.objects = [
-            pygame.Rect(300, 200, 60, 60),  # Yellow object
-            pygame.Rect(500, 300, 60, 60)   # Purple object
+            [
+                WarpDoor(
+                    warp_door,
+                    WIDTH - 100,
+                    int(HEIGHT/2) - 120,
+                    100,
+                    200,
+                    1,
+                    self.player.rect.width + 20,
+                    int(HEIGHT / 2) - self.player.rect.height
+                )
+            ],
+            [
+                WarpDoor(
+                    warp_door,
+                    0,
+                    410,
+                    100,
+                    220,
+                    0,
+                    WIDTH - self.player.rect.width - 200,
+                    int(HEIGHT / 2) - self.player.rect.height - 100
+                ),
+                WarpDoor(
+                    warp_door,
+                    WIDTH - 100,
+                    410,
+                    100,
+                    210,
+                    2,
+                    self.player.rect.width + 20,
+                    int(HEIGHT / 2) - self.player.rect.height
+                )
+            ],
+            [
+                WarpDoor(
+                    warp_door,
+                    0,
+                    197,
+                    100,
+                    200,
+                    1,
+                    WIDTH - self.player.rect.width - 100,
+                    int(HEIGHT / 2) - self.player.rect.height
+                ),
+            ],
         ]
         self.object_colors = [YELLOW, PURPLE]
-        self.player = Player(100, 100, 60, 60)
+        self.current_scene = 0
+
+        self.bg = [
+            StaticBackground("assets/scene/level_1/stage1(1_3).png"),
+            StaticBackground("assets/scene/level_1/stage1(2_3).png"),
+            StaticBackground("assets/scene/level_1/stage1(3_3).png"),
+        ]
+
+        self.walkable_mask = []
 
     def draw(self):
         screen.fill(WHITE)
-        title_font = pygame.font.Font(None, 50)
-        title_text = title_font.render("Level 1", True, BLUE)
-        screen.blit(title_text, (WIDTH // 2 -
-                    title_text.get_width() // 2, 100))
+        # Draw background
+        self.bg[self.current_scene].draw(screen)
 
         # Draw objects
-        for i, obj in enumerate(self.objects):
-            pygame.draw.rect(screen, self.object_colors[i], obj)
-
-        # Draw player
+        for i, obj in enumerate(self.objects[self.current_scene]):
+            obj.debug = True
+            obj.draw(screen)
+        self.player.debug = True
         self.player.draw(screen)
 
         # Draw buttons
         for button in self.buttons:
             button.draw(screen)
+
         # Handle keyboard events for player movement
         self.player.handle_keys()
 
@@ -113,10 +155,12 @@ class LevelOne(Level):
         self.check_interaction()
 
     def check_interaction(self):
-        # Check if player collides with any object
-        # for obj in self.objects:
-        #     pass
-        pass
+        for obj in self.objects[self.current_scene]:
+            if self.player.rect.colliderect(obj.rect):
+                if isinstance(obj, WarpDoor):
+                    self.current_scene = obj.warpTarget
+                    self.player.rect.left = obj.next_pos_x
+                    self.player.rect.top = obj.next_pos_y
 
 
 class LevelTwo(Level):
