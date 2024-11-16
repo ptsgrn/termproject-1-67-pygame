@@ -219,4 +219,4 @@ class ImageButton(_BaseButton):
                 filename).convert_alpha(),
             Rect(rect.x, rect.y, int(rect.h*scale_factor),
                  int(rect.w*scale_factor))
-        )[0] if filename else scale_by(self.default_image, scale_factor)
+        )[0] if filename else scale_by(self._default_image, scale_factor)
