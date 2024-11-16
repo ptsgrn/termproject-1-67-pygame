@@ -9,6 +9,7 @@ GREEN = Color(0, 255, 0)
 RED = Color(255, 0, 0)
 YELLOW = Color(255, 255, 0)
 PURPLE = Color(128, 0, 128)
+MAGENTA = Color(255, 0, 255)
 
 if __name__ == "__main__":
     pygame.init()
