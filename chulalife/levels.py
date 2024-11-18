@@ -1,12 +1,13 @@
 import pygame
-import sys
+from typing import List
 from .ui_elements import ImageButton, Button
-from .background import StaticBackground
+from .background import StaticBackground, WalkableTile
 from .helper import scale_fit
 from .color import WHITE, BLUE, GREEN, RED, PURPLE, YELLOW
 from .player import Player
-from .object import WarpDoor
+from .object import WarpDoor, Object, QuestCharector
 from .screen import WIDTH, HEIGHT, screen
+
 
 # Initialize Pygame
 pygame.init()
@@ -16,6 +17,9 @@ class Level:
     def __init__(self, game):
         self.game = game
         self.buttons = []
+        self.objects: List[List[Object]] = []
+        self.current_scene = 0
+        self.player = Player(0, 0, 0, 0)
 
     def draw(self):
         raise NotImplementedError(
@@ -28,6 +32,14 @@ class Level:
                 if button.is_clicked(mouse_pos):
                     return button.action()
         return None
+
+    def check_interaction(self):
+        for obj in self.objects[self.current_scene]:
+            if self.player.rect.colliderect(obj.rect):
+                if isinstance(obj, WarpDoor):
+                    self.current_scene = obj.warpTarget
+                    self.player.rect.left = obj.next_pos_x
+                    self.player.rect.top = obj.next_pos_y
 
 
 class WelcomeScreen(Level):
@@ -49,8 +61,7 @@ class WelcomeScreen(Level):
         self.buttons.append(start_button)
 
     def draw(self):
-        StaticBackground("assets/scene/welcome/startbg.png",
-                         screen)
+        StaticBackground("assets/scene/welcome/startbg.png")
         bg_image, bg_rect = scale_fit(pygame.image.load(
             "assets/scene/welcome/startbg.png"), screen.get_rect())
         screen.blit(bg_image, bg_rect)
@@ -65,13 +76,11 @@ class LevelOne(Level):
         # Define level-specific buttons
         self.buttons = []
 
-        # Define interactable objects as rectangles
-
         # create transparent warp door
         warp_door = pygame.Surface((100, 300), pygame.SRCALPHA)
 
         self.player = Player(100, 350, int(WIDTH/5.5),
-                             int(HEIGHT/5.5), speed=min(WIDTH, HEIGHT) // 50)
+                             int(HEIGHT/5.5))
 
         self.objects = [
             [
@@ -82,9 +91,10 @@ class LevelOne(Level):
                     100,
                     200,
                     1,
-                    self.player.rect.width + 20,
-                    int(HEIGHT / 2) - self.player.rect.height
-                )
+                    117,
+                    407
+                ),
+                QuestCharector("Q1_chick", 1600, 425)
             ],
             [
                 WarpDoor(
@@ -94,8 +104,8 @@ class LevelOne(Level):
                     100,
                     220,
                     0,
-                    WIDTH - self.player.rect.width - 200,
-                    int(HEIGHT / 2) - self.player.rect.height - 100
+                    1717,
+                    413
                 ),
                 WarpDoor(
                     warp_door,
@@ -104,8 +114,8 @@ class LevelOne(Level):
                     100,
                     210,
                     2,
-                    self.player.rect.width + 20,
-                    int(HEIGHT / 2) - self.player.rect.height
+                    117,
+                    197
                 )
             ],
             [
@@ -116,8 +126,8 @@ class LevelOne(Level):
                     100,
                     200,
                     1,
-                    WIDTH - self.player.rect.width - 100,
-                    int(HEIGHT / 2) - self.player.rect.height
+                    1723,
+                    407
                 ),
             ],
         ]
@@ -130,18 +140,23 @@ class LevelOne(Level):
             StaticBackground("assets/scene/level_1/stage1(3_3).png"),
         ]
 
-        self.walkable_mask = []
+        self.walkable_mask = [
+            WalkableTile("assets/scene/level_1/way1(1_3).png"),
+            WalkableTile("assets/scene/level_1/way1(2_3).png"),
+            WalkableTile("assets/scene/level_1/way1(3_3).png"),
+        ]
 
     def draw(self):
         screen.fill(WHITE)
         # Draw background
         self.bg[self.current_scene].draw(screen)
 
+        self.walkable_mask[self.current_scene].draw(screen)
+
         # Draw objects
         for i, obj in enumerate(self.objects[self.current_scene]):
-            obj.debug = True
-            obj.draw(screen)
-        self.player.debug = True
+            obj.draw()
+        self.player.walkable_mask = self.walkable_mask[self.current_scene]
         self.player.draw(screen)
 
         # Draw buttons
@@ -161,6 +176,8 @@ class LevelOne(Level):
                     self.current_scene = obj.warpTarget
                     self.player.rect.left = obj.next_pos_x
                     self.player.rect.top = obj.next_pos_y
+                if isinstance(obj, QuestCharector):
+                    print("Quest Charector", obj.name)
 
 
 class LevelTwo(Level):

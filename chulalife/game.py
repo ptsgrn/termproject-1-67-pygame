@@ -2,7 +2,7 @@ import sys
 import pygame
 
 # Internal imports
-from .levels import WelcomeScreen, Level, LevelOne
+from .levels import WelcomeScreen, Level
 
 FPS = 60
 
@@ -16,7 +16,6 @@ class Game:
         self.running = True
         # Start with the Welcome Screen
         self.level: Level = WelcomeScreen(self)
-        # self.level: Level = LevelOne(self)
 
     def set_level(self, level: Level):
         self.level = level
