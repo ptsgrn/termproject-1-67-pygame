@@ -15,7 +15,7 @@ bg_image = pygame.image.load("assets/scene/text_or_die/textordie_time.png")
 bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
 
 # Set up fonts
-font_path = "assets/fonts/2005_iannnnnCPU.ttf"
+font_path = "assets/fonts/2005_iannnnnAMD.ttf"
 font = pygame.font.Font(font_path, 74)
 small_font = pygame.font.Font(font_path, 36)
 
