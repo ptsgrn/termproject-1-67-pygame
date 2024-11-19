@@ -1,5 +1,6 @@
 import sys
 import pygame
+from .ui_elements import ScreenOverlay, Heart
 
 # Internal imports
 from .levels import WelcomeScreen, Level
@@ -16,6 +17,7 @@ class Game:
         self.running = True
         # Start with the Welcome Screen
         self.level: Level = WelcomeScreen(self)
+        self.overlay: ScreenOverlay = ScreenOverlay().add("hearts", Heart())
 
     def set_level(self, level: Level):
         self.level = level

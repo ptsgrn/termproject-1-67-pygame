@@ -1,12 +1,13 @@
 import pygame
 from typing import List
-from .ui_elements import ImageButton, Button
+from .ui_elements import ImageButton, Button, ScreenOverlay, Heart
 from .background import StaticBackground, WalkableTile
 from .helper import scale_fit
 from .color import WHITE, BLUE, GREEN, RED, PURPLE, YELLOW
 from .player import Player
 from .object import WarpDoor, Object, QuestCharector
 from .screen import WIDTH, HEIGHT, screen
+from .question import Question
 
 
 # Initialize Pygame
@@ -20,6 +21,7 @@ class Level:
         self.objects: List[List[Object]] = []
         self.current_scene = 0
         self.player = Player(0, 0, 0, 0)
+        self.overlay = ScreenOverlay().add("hearts", Heart())
 
     def draw(self):
         raise NotImplementedError(
@@ -75,6 +77,7 @@ class LevelOne(Level):
         super().__init__(game)
         # Define level-specific buttons
         self.buttons = []
+        self.overlay.set_visible(True)
 
         # create transparent warp door
         warp_door = pygame.Surface((100, 300), pygame.SRCALPHA)
@@ -94,7 +97,7 @@ class LevelOne(Level):
                     117,
                     407
                 ),
-                QuestCharector("Q1_chick", 1600, 425)
+                QuestCharector("Q1_chick", 1650, 300)
             ],
             [
                 WarpDoor(
@@ -163,11 +166,15 @@ class LevelOne(Level):
         for button in self.buttons:
             button.draw(screen)
 
-        # Handle keyboard events for player movement
-        self.player.handle_keys()
+        self.overlay.draw()
 
-        # Check for interaction with objects
-        self.check_interaction()
+        # Handle keyboard events for player movement
+        # Disabled when fullscreen overlay is open
+        if not self.overlay.is_fullscreen_open:
+            self.player.handle_keys()
+
+            # Check for interaction with objects
+            self.check_interaction()
 
     def check_interaction(self):
         for obj in self.objects[self.current_scene]:
@@ -177,7 +184,15 @@ class LevelOne(Level):
                     self.player.rect.left = obj.next_pos_x
                     self.player.rect.top = obj.next_pos_y
                 if isinstance(obj, QuestCharector):
-                    print("Quest Charector", obj.name)
+                    self.overlay.set_element_visible(
+                        "hearts", False)
+                    if not self.overlay.has_element("question"):
+                        self.overlay.add("question", obj.question)
+                        self.overlay.set_element_visible("question", True)
+                    self.overlay.set_fullscreen_open(True)
+            else:
+                self.overlay.set_element_visible(
+                    "hearts", True).remove("question")
 
 
 class LevelTwo(Level):

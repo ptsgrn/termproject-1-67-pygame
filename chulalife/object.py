@@ -3,6 +3,7 @@ from pygame.transform import scale
 from .color import MAGENTA, ORANGE, GREEN
 from .setting import object_debug, warpdoor_debug, character_show_outline
 from .screen import screen
+from .question import Question
 
 
 class Object(pygame.sprite.Sprite):
@@ -48,14 +49,15 @@ class WarpDoor(Object):
 
 
 class QuestCharector(Object):
-    def __init__(self, charector_name: str, x: int = 0, y: int = 0, w: int = 120, h: int = 120, quest_file_name: str | None = None):
+    def __init__(self, charector_name: str, x: int = 0, y: int = 0, w: int = 200, h: int = 200, question: Question | None = None):
         self.debug_color = ORANGE
         self.name = charector_name
         super().__init__(
             f"assets/scene/text_or_die/Character_Q/{charector_name}.png", x, y, w, h)
         self.debug = character_show_outline
-        self.quest_file_name = quest_file_name
         self.image = scale(self.image, (w, h))
+        self.question_id = charector_name.split("_")[0]
+        self.question = question or Question(self.question_id)
 
     def draw(self):
         super(QuestCharector, self).draw()
@@ -63,3 +65,7 @@ class QuestCharector(Object):
             raise ValueError(
                 f"Character image not found: {self.name}")
         screen.blit(self.image, self.rect)
+
+    @property
+    def dialog(self):
+        return self.question
