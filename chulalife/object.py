@@ -41,8 +41,7 @@ class WarpDoor(Object):
         self.next_pos_x = next_pos[0]
         self.next_pos_y = next_pos[1]
         self.debug = warpdoor_debug
-        if action is not None:
-            self.action = action
+        self.action = action
 
     def draw(self):
         screen.blit(

@@ -24,7 +24,7 @@ class Level:
         self.current_scene: int = 0
         self.objects: List[List[Object]] = []
         self.overlay: ScreenOverlay = ScreenOverlay().add("hearts", Heart())
-        self.player: Player = Player((0, 0))
+        self.player: Player | None = Player((0, 0))
         self.bg: list[Background] = []
         self.walkable_mask = []
 
@@ -41,14 +41,19 @@ class Level:
         # Draw background
         self.bg[self.current_scene].draw(screen)
 
-        self.walkable_mask[self.current_scene].draw(screen)
+        if len(self.walkable_mask) > 0:
+            self.walkable_mask[self.current_scene].draw(screen)
 
         # Draw objects
-        for i, obj in enumerate(self.objects[self.current_scene]):
-            obj.draw()
+        if len(self.objects) > 0:
+            for i, obj in enumerate(self.objects[self.current_scene]):
+                obj.draw()
 
-        self.player.walkable_mask = self.walkable_mask[self.current_scene]
-        self.player.draw(screen)
+        if len(self.walkable_mask) > 0 and self.player is not None:
+            self.player.walkable_mask = self.walkable_mask[self.current_scene]
+
+        if self.player is not None:
+            self.player.draw(screen)
 
         # Draw buttons
         for button in self.buttons:
@@ -58,19 +63,21 @@ class Level:
 
         # Handle keyboard events for player movement
         # Disabled when fullscreen overlay is open
-        if not self.overlay.is_fullscreen_open or not charector_interaction:
+        if (not self.overlay.is_fullscreen_open or not charector_interaction) and self.player is not None:
             self.player.handle_keys()
 
             # Check for interaction with objects
         self.check_interaction()
 
     def check_interaction(self):
+        if len(self.objects) == 0 or self.player is None:
+            return
         for obj in self.objects[self.current_scene]:
             if self.player.rect.colliderect(obj.rect):
                 if isinstance(obj, WarpDoor):
                     if obj.action is not None:
                         obj.action()
-                    return
+                        return
                     self.current_scene = obj.warpTarget
                     self.player.rect.left = obj.next_pos_x
                     self.player.rect.top = obj.next_pos_y
@@ -144,6 +151,8 @@ class LevelOne(Level):
             ],
             [
                 WarpDoor(warp_door, (0, 197), (100, 200), 1, (1723, 407)),
+                WarpDoor(warp_door, (HEIGHT - 100, 200),
+                         (100, 200), 3, (0, 0), lambda: self.game.set_level(EndGame(self.game))),
                 QuestCharacter("Q3_yellow", (367, 72)),
                 QuestCharacter("Q4_red", (917, 622), (572*0.3, 972*0.3)),
                 BlockerCharacter((1617, 72))
@@ -240,6 +249,8 @@ class EndGame(Level):
         self.bg = [
             StaticBackground("assets/scene/win/win_page.png")
         ]
+
+        self.player = None
 
     def reset_game(self):
         game_state.hearts = initial_hearts
