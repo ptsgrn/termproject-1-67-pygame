@@ -13,6 +13,7 @@ from .color import WHITE, BLACK
 from .screen import screen, WIDTH, HEIGHT
 from .logger import get_logger
 from .game_state import game_state
+from .setting import initial_hearts
 
 logger = get_logger(__name__)
 
@@ -279,9 +280,12 @@ class Heart(OverlayObject):
     def draw(self):
         if not self.visible:
             return
-        for i in range(game_state.hearts):
-            screen.blit(self.surface, Rect(self.rect.x + i *
-                        self.rect.w, self.rect.y, self.rect.w, self.rect.h))
+        if game_state.hearts < 0:
+            game_state.hearts = 0
+        elif game_state.hearts > 0:
+            for i in range(game_state.hearts):
+                screen.blit(self.surface, Rect(self.rect.x + i *
+                            self.rect.w, self.rect.y, self.rect.w, self.rect.h))
 
     def hide(self):
         self.visible = False
@@ -314,7 +318,6 @@ class ScreenOverlay:
         # Set visibility for all overlay objects
         for key in self.overlay_objects:
             self.overlay_objects[key].set_visible(visible)
-            logger.debug(f"set {key} to {visible}")
         return self
 
     def set_element_visible(self, key, visible):
@@ -330,3 +333,7 @@ class ScreenOverlay:
 
     def has_element(self, key):
         return key in self.overlay_objects
+
+    def set_element(self, key, obj: OverlayObject):
+        self.overlay_objects[key] = obj
+        return self

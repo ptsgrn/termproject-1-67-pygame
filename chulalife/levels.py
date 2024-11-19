@@ -8,7 +8,8 @@ from .player import Player
 from .object import WarpDoor, Object, QuestCharacter, BlockerCharacter
 from .screen import WIDTH, HEIGHT, screen
 from .logger import get_logger
-from .setting import charector_interaction
+from .setting import charector_interaction, initial_hearts
+from .game_state import game_state
 
 logger = get_logger(__name__)
 
@@ -157,15 +158,17 @@ class LevelOne(Level):
                 if isinstance(obj, QuestCharacter):
                     if self.overlay.has_element("question"):
                         if obj.question.status == "done":
-                            self.overlay.set_element_visible("question", False)
-                            self.overlay.remove("question")
-                            self.overlay.set_fullscreen_open(False)
+                            self.overlay\
+                                .set_element_visible("question", False)\
+                                .remove("question")\
+                                .set_fullscreen_open(False)
                             obj.clear()
                     else:
                         if obj.question.status != "done":
-                            self.overlay.add("question", obj.dialog)
-                            self.overlay.set_element_visible("question", True)
-                            self.overlay.set_fullscreen_open(True)
+                            self.overlay\
+                                .add("question", obj.dialog)\
+                                .set_element_visible("question", True)\
+                                .set_fullscreen_open(True)
 
 
 class LevelTwo(Level):
@@ -192,3 +195,37 @@ class LevelTwo(Level):
     def secret_action(self):
         logger.info("Secret Action Activated!")
         # Implement other actions as desired.
+
+
+class EndScreen(Level):
+    def __init__(self, game):
+        super().__init__(game)
+        # Define level-specific buttons
+        self.buttons = [
+            # Button(50, 500, 200, 50, "Back to Level 1", BLUE,
+            #        lambda: self.game.set_level(LevelOne(self.game))),
+            ImageButton(
+                x=WIDTH//2,
+                y=HEIGHT//2 + HEIGHT // 4 - 50,
+                w=300,
+                h=300,
+                image_filename="assets/scene/game_over/new_game.png",
+                hover_file_name="assets/scene/game_over/new_game.png",
+                active_file_name="assets/scene/game_over/new_game.png",
+                hover_scale_factor=1.3,
+                active_scale_factor=1.25,
+                action=self.reset_game
+            )
+        ]
+
+    def draw(self):
+        screen.fill(WHITE)
+        game_over_bg = pygame.image.load(
+            "assets/scene/game_over/game_over.png")
+        screen.blit(game_over_bg, pygame.rect.Rect((0, 0), (WIDTH, HEIGHT)))
+        for button in self.buttons:
+            button.draw(screen)
+
+    def reset_game(self):
+        game_state.hearts = initial_hearts
+        self.game.set_level(WelcomeScreen(self.game))

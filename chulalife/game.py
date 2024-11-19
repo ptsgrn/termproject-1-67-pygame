@@ -1,7 +1,8 @@
 import sys
 import pygame
 from .elements import ScreenOverlay, Heart
-from .levels import WelcomeScreen, Level
+from .levels import WelcomeScreen, Level, EndScreen
+from .game_state import game_state
 
 FPS = 60
 
@@ -15,7 +16,8 @@ class Game:
         self.running = True
         # Start with the Welcome Screen
         self.level: Level = WelcomeScreen(self)
-        self.overlay: ScreenOverlay = ScreenOverlay().add("hearts", Heart())
+        self.overlay: ScreenOverlay = ScreenOverlay()
+        self.overlay.add("hearts", Heart())
 
     def set_level(self, level: Level):
         self.level = level
@@ -29,6 +31,8 @@ class Game:
                     action = self.level.handle_events(event)
                     if action == "exit":
                         self.running = False
+            if game_state.hearts == 0:
+                self.set_level(EndScreen(self))
 
             # Draw the current level or screen
             self.level.draw()

@@ -1,6 +1,8 @@
 # Logging level
 logging_level = "DEBUG"
 
+# Game settings
+initial_hearts = 1
 
 # Debug options
 player_debug: bool = True

@@ -85,7 +85,7 @@ class Question(OverlayObject):
                         self.notify_text = f"Incorrect word! {
                             game_state.hearts} hearts left"
                     else:
-                        self.notify_text = "Correct!"
+                        self.notify_text = "Yes Correct!!!"
                         self.status = "done"
                         self.typed_word = ""
                 elif event.unicode.isalpha():
