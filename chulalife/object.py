@@ -61,18 +61,22 @@ class QuestCharacter(Object):
         self.image = scale(self.image, width_height)
         self.question_id = charector_name.split("_")[0]
         self.question = question or Question(self.question_id)
-        self.clear = False
+        self.done = False
 
     def draw(self):
         super(QuestCharacter, self).draw()
         if self.image is None:
             raise ValueError(
                 f"Character image not found: {self.name}")
-        if not self.clear:
+        if self.done:
+            # image opacity
+            self.image.set_alpha(128)
+            screen.blit(self.image, self.rect)
+        else:
             screen.blit(self.image, self.rect)
 
-    def clear_dialog(self):
-        self.clear = True
+    def clear(self):
+        self.done = True
 
     @property
     def dialog(self):

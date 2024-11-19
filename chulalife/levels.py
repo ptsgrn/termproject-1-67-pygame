@@ -145,7 +145,7 @@ class LevelOne(Level):
             self.player.handle_keys()
 
             # Check for interaction with objects
-            self.check_interaction()
+        self.check_interaction()
 
     def check_interaction(self):
         for obj in self.objects[self.current_scene]:
@@ -155,13 +155,17 @@ class LevelOne(Level):
                     self.player.rect.left = obj.next_pos_x
                     self.player.rect.top = obj.next_pos_y
                 if isinstance(obj, QuestCharacter):
-                    if not self.overlay.has_element("question"):
-                        self.overlay.add("question", obj.dialog)
-                        self.overlay.set_element_visible("question", True)
-                    self.overlay.set_fullscreen_open(True)
-            else:
-                self.overlay.set_element_visible(
-                    "hearts", True).remove("question")
+                    if self.overlay.has_element("question"):
+                        if obj.question.status == "done":
+                            self.overlay.set_element_visible("question", False)
+                            self.overlay.remove("question")
+                            self.overlay.set_fullscreen_open(False)
+                            obj.clear()
+                    else:
+                        if obj.question.status != "done":
+                            self.overlay.add("question", obj.dialog)
+                            self.overlay.set_element_visible("question", True)
+                            self.overlay.set_fullscreen_open(True)
 
 
 class LevelTwo(Level):

@@ -1,5 +1,6 @@
 import pygame
 import pygame.event
+from typing import Literal
 from pygame.image import load
 from pygame.rect import Rect
 from .screen import screen, WIDTH, HEIGHT
@@ -45,6 +46,7 @@ class Question(OverlayObject):
         self.notify_text = ""
         self.notify = TextObject(
             "", (0, HEIGHT // 2 + HEIGHT // 4 + 50), RED, "display", 52)
+        self.status: Literal["active", "done"] = "active"
 
     def draw(self):
         if not self.visible:
@@ -58,7 +60,7 @@ class Question(OverlayObject):
         self.text_input.update_cursor()
         screen.blit(self.image, self.rect)
         self.notify.update_text(self.notify_text)
-        if self.notify_text:
+        if self.notify_text and self.typed_word == "":
             self.notify.draw(screen)
         self.text_input.draw(screen)
 
@@ -82,5 +84,9 @@ class Question(OverlayObject):
                         self.typed_word = ""
                         self.notify_text = f"Incorrect word! {
                             game_state.hearts} hearts left"
+                    else:
+                        self.notify_text = "Correct!"
+                        self.status = "done"
+                        self.typed_word = ""
                 elif event.unicode.isalpha():
                     self.typed_word += event.unicode.upper()
