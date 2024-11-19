@@ -33,7 +33,7 @@ class Object(pygame.sprite.Sprite):
 
 
 class WarpDoor(Object):
-    def __init__(self, image, pos: tuple[int, int] = (0, 0), width_height: tuple[int, int] = (200, 200), warp_to_scene=0, next_pos=(0, 0)):
+    def __init__(self, image, pos: tuple[int, int] = (0, 0), width_height: tuple[int, int] = (200, 200), warp_to_scene=0, next_pos=(0, 0), action=None):
         super().__init__(None, pos, width_height)
         self.image = image
         self._rect = pygame.rect.Rect(pos, width_height)
@@ -41,6 +41,8 @@ class WarpDoor(Object):
         self.next_pos_x = next_pos[0]
         self.next_pos_y = next_pos[1]
         self.debug = warpdoor_debug
+        if action is not None:
+            self.action = action
 
     def draw(self):
         screen.blit(

@@ -1,7 +1,7 @@
 import sys
 import pygame
 from .elements import ScreenOverlay, Heart
-from .levels import WelcomeScreen, Level, EndScreen
+from .levels import WelcomeScreen, Level, GameOver
 from .game_state import game_state
 
 FPS = 60
@@ -32,7 +32,7 @@ class Game:
                     if action == "exit":
                         self.running = False
             if game_state.hearts == 0:
-                self.set_level(EndScreen(self))
+                self.set_level(GameOver(self))
 
             # Draw the current level or screen
             self.level.draw()

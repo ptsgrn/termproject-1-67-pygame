@@ -5,12 +5,23 @@ from pygame.surface import Surface
 from pygame.image import load
 from .color import PURPLE
 from .setting import background_debug, walkable_debug
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 
-class StaticBackground:
+class Background:
     def __init__(self, image_file_name: FileLike) -> None:
         self.bg_image = load(image_file_name)
         self.debug = background_debug
+
+    def draw(self, screen: Surface, offset: List[int] = [0, 0]):
+        logger.error("draw method not implemented")
+
+
+class StaticBackground(Background):
+    def __init__(self, image_file_name: FileLike) -> None:
+        super().__init__(image_file_name)
 
     def draw(self, screen: Surface, offset: List[int] = [0, 0]):
         self.bg_image = pygame.transform.scale(
