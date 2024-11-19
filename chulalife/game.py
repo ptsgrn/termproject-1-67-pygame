@@ -1,8 +1,6 @@
 import sys
 import pygame
-from .ui_elements import ScreenOverlay, Heart
-
-# Internal imports
+from .elements import ScreenOverlay, Heart
 from .levels import WelcomeScreen, Level
 
 FPS = 60

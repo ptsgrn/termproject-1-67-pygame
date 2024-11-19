@@ -1,16 +1,20 @@
-from typing import Literal, Any, List, Dict
 import pygame
+import time
+from typing import Literal, Any, List, Dict
 from pygame.sprite import Sprite
 from pygame.rect import Rect
-from pygame.color import Color
 from pygame.typing import FileLike
 from pygame.transform import scale_by, scale
 from pygame.image import load
-from .screen import screen
 
 # Internal imports
 from .helper import scale_fit
-from .color import WHITE
+from .color import WHITE, BLACK
+from .screen import screen, WIDTH, HEIGHT
+from .logger import get_logger
+from .game_state import game_state
+
+logger = get_logger(__name__)
 
 font_paths = {
     "display": "assets/fonts/2005_iannnnnCPU.ttf",
@@ -222,9 +226,39 @@ class ImageButton(_BaseButton):
         )[0] if filename else scale_by(self._default_image, scale_factor)
 
 
+class TextObject:
+    def __init__(self, text: str,  pos: tuple[int, int] = (0, 0), color=BLACK, font: Literal["content", "display"] = "content", font_size: int = 36, cursor: bool = False):
+        self.font = pygame.font.Font(get_font_pathname(font), font_size)
+        self.color = color
+        self.x = pos[0]
+        self.y = pos[1]
+        self.cursor = cursor
+        self.update_text(text)
+        self.cursor_visible = True
+        self.cursor_last_switch = time.time()
+
+    def draw(self, screen: pygame.surface.Surface):
+        screen.blit(self.rendered_text, self.rect)
+        if self.cursor and self.cursor_visible:
+            cursor_rect = pygame.Rect(
+                self.rect.topright, (5, self.rect.height))
+            pygame.draw.rect(screen, self.color, cursor_rect)
+
+    def update_text(self, new_text):
+        self.text = new_text
+        self.rendered_text = self.font.render(self.text, True, self.color)
+        self.rect = self.rendered_text.get_rect(center=(WIDTH // 2, self.y))
+
+    def update_cursor(self):
+        if self.cursor and time.time() - self.cursor_last_switch > 0.5:
+            self.cursor_visible = not self.cursor_visible
+            self.cursor_last_switch = time.time()
+
+
 class OverlayObject:
     def __init__(self) -> None:
         self.visible = False
+        self.z_index = 0
 
     def draw(self):
         pass
@@ -236,18 +270,16 @@ class OverlayObject:
 
 class Heart(OverlayObject):
     def __init__(self, h: int = 100, w: int = 100) -> None:
-        self.hearts = 3
+        super().__init__()
         self.rect = Rect(10, 10, w, h)
         self.visible = True
         self.surface = scale(load("assets/common/heart.png"), self.rect.size)
-
-    def remove(self):
-        self.hearts -= 1
+        self.z_index = 10
 
     def draw(self):
         if not self.visible:
             return
-        for i in range(self.hearts):
+        for i in range(game_state.hearts):
             screen.blit(self.surface, Rect(self.rect.x + i *
                         self.rect.w, self.rect.y, self.rect.w, self.rect.h))
 
@@ -265,7 +297,8 @@ class ScreenOverlay:
         self.is_fullscreen_open = False
 
     def draw(self):
-        for key in self.overlay_objects:
+        # sort overlay objects by z-index, more z-index means latter draw
+        for key in sorted(self.overlay_objects.keys(), key=lambda x: self.overlay_objects[x].z_index):
             self.overlay_objects[key].draw()
 
     def add(self, key, obj: OverlayObject):
@@ -281,12 +314,12 @@ class ScreenOverlay:
         # Set visibility for all overlay objects
         for key in self.overlay_objects:
             self.overlay_objects[key].set_visible(visible)
-            print(f"set {key} to {visible}")
+            logger.debug(f"set {key} to {visible}")
         return self
 
     def set_element_visible(self, key, visible):
         if key not in self.overlay_objects:
-            print(f"Element {key} not found in overlay")
+            logger.error(f"Element {key} not found in overlay")
             return self
         self.overlay_objects[key].set_visible(visible)
         return self

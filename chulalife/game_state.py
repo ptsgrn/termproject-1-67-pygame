@@ -1,12 +1,9 @@
-from enum import Enum
+from dataclasses import dataclass
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 
-class GameState(Enum):
-    QUIT = -1
-    TITLE = 0
-    LEVEL1 = 1
-
-    @classmethod
-    def _missing_(cls, value):
-        print(f"ERROR: GameState({value}) does not exist, returning TITLE")
-        return cls.TITLE
+@dataclass
+class game_state:
+    hearts = 3

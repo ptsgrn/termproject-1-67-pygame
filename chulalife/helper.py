@@ -1,6 +1,7 @@
 from pygame.transform import scale
 from pygame.surface import Surface
 from pygame.rect import Rect
+from .screen import WIDTH, HEIGHT
 
 
 def scale_fit(surface: Surface, rect: Rect) -> tuple[Surface, Rect]:

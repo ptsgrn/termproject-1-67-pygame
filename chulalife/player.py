@@ -6,15 +6,18 @@ from .helper import scale_fit
 from .screen import WIDTH, HEIGHT, screen
 from .setting import player_debug, show_player_position, player_speed
 from .background import WalkableTile
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, init_x: int, init_y: int, w: int = 40, h: int = 40):
+    def __init__(self, init_pos: tuple[int, int], width_height: tuple[int, int] = (225, 225)):
         super().__init__()
         self._image = pygame.Surface((40, 40))
         self.speed = player_speed
         self.facing: Literal['down', 'up', 'left', 'right'] = "down"
-        self._rect = pygame.Rect(init_x, init_y, w, h)
+        self._rect = pygame.Rect(init_pos, width_height)
         self.__facing_image = {
             "up": self.load_image_fit_rect("assets/characters/bunny/face-up.png"),
             "down": self.load_image_fit_rect("assets/characters/bunny/face-down.png"),
@@ -30,7 +33,7 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, screen):
         if show_player_position:
-            print(f"Player position: {self.rect.topleft}")
+            logger.debug(f"Player position: {self.rect.topleft}")
         screen.blit(self.image, self.rect)
         if self.debug:
             pygame.draw.rect(screen, BLUE, self.rect, 2)
@@ -70,6 +73,7 @@ class Player(pygame.sprite.Sprite):
     def handle_keys(self):
         keys = pygame.key.get_pressed()
         dx, dy = 0, 0
+
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             dx = -self.speed
             self.facing = "left"
@@ -104,7 +108,7 @@ if __name__ == "__main__":
     WIDTH = 800
     HEIGHT = 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    player = Player(100, 100)
+    player = Player((100, 100))
     running = True
     while running:
         screen.fill(WHITE)

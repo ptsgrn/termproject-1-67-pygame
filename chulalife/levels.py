@@ -1,14 +1,16 @@
 import pygame
 from typing import List
-from .ui_elements import ImageButton, Button, ScreenOverlay, Heart
+from .elements import ImageButton, Button, ScreenOverlay, Heart
 from .background import StaticBackground, WalkableTile
 from .helper import scale_fit
 from .color import WHITE, BLUE, GREEN, RED, PURPLE, YELLOW
 from .player import Player
-from .object import WarpDoor, Object, QuestCharector
+from .object import WarpDoor, Object, QuestCharacter, BlockerCharacter
 from .screen import WIDTH, HEIGHT, screen
-from .question import Question
+from .logger import get_logger
+from .setting import charector_interaction
 
+logger = get_logger(__name__)
 
 # Initialize Pygame
 pygame.init()
@@ -20,7 +22,7 @@ class Level:
         self.buttons = []
         self.objects: List[List[Object]] = []
         self.current_scene = 0
-        self.player = Player(0, 0, 0, 0)
+        self.player = Player((0, 0), (0, 0))
         self.overlay = ScreenOverlay().add("hearts", Heart())
 
     def draw(self):
@@ -82,56 +84,25 @@ class LevelOne(Level):
         # create transparent warp door
         warp_door = pygame.Surface((100, 300), pygame.SRCALPHA)
 
-        self.player = Player(100, 350, int(WIDTH/5.5),
-                             int(HEIGHT/5.5))
+        self.player = Player((100, 350))
 
         self.objects = [
             [
-                WarpDoor(
-                    warp_door,
-                    WIDTH - 100,
-                    int(HEIGHT/2) - 120,
-                    100,
-                    200,
-                    1,
-                    117,
-                    407
-                ),
-                QuestCharector("Q1_chick", 1650, 300)
+                WarpDoor(warp_door, (WIDTH - 100, int(HEIGHT/2) -
+                         120), (100, 200), 1, (117, 407)),
+                QuestCharacter("Q1_chick", (1650, 300)),
             ],
             [
-                WarpDoor(
-                    warp_door,
-                    0,
-                    410,
-                    100,
-                    220,
-                    0,
-                    1717,
-                    413
-                ),
-                WarpDoor(
-                    warp_door,
-                    WIDTH - 100,
-                    410,
-                    100,
-                    210,
-                    2,
-                    117,
-                    197
-                )
+                WarpDoor(warp_door, (0, 410), (100, 220), 0, (1717, 413)),
+                WarpDoor(warp_door, (WIDTH - 100, 410),
+                         (100, 210), 2, (117, 197)),
+                QuestCharacter("Q2_tiger", (1650, 300)),
             ],
             [
-                WarpDoor(
-                    warp_door,
-                    0,
-                    197,
-                    100,
-                    200,
-                    1,
-                    1723,
-                    407
-                ),
+                WarpDoor(warp_door, (0, 197), (100, 200), 1, (1723, 407)),
+                QuestCharacter("Q3_yellow", (367, 72)),
+                QuestCharacter("Q4_red", (917, 622), (572*0.3, 972*0.3)),
+                BlockerCharacter((1617, 72))
             ],
         ]
         self.object_colors = [YELLOW, PURPLE]
@@ -170,7 +141,7 @@ class LevelOne(Level):
 
         # Handle keyboard events for player movement
         # Disabled when fullscreen overlay is open
-        if not self.overlay.is_fullscreen_open:
+        if not self.overlay.is_fullscreen_open or not charector_interaction:
             self.player.handle_keys()
 
             # Check for interaction with objects
@@ -183,11 +154,9 @@ class LevelOne(Level):
                     self.current_scene = obj.warpTarget
                     self.player.rect.left = obj.next_pos_x
                     self.player.rect.top = obj.next_pos_y
-                if isinstance(obj, QuestCharector):
-                    self.overlay.set_element_visible(
-                        "hearts", False)
+                if isinstance(obj, QuestCharacter):
                     if not self.overlay.has_element("question"):
-                        self.overlay.add("question", obj.question)
+                        self.overlay.add("question", obj.dialog)
                         self.overlay.set_element_visible("question", True)
                     self.overlay.set_fullscreen_open(True)
             else:
@@ -217,5 +186,5 @@ class LevelTwo(Level):
             button.draw(screen)
 
     def secret_action(self):
-        print("Secret Action Activated!")
+        logger.info("Secret Action Activated!")
         # Implement other actions as desired.

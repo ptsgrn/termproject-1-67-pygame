@@ -1,3 +1,6 @@
+# Logging level
+logging_level = "DEBUG"
+
 
 # Debug options
 player_debug: bool = True
@@ -6,7 +9,7 @@ background_debug: bool = True
 warpdoor_debug: bool = True
 
 # Player settings
-show_player_position: bool = True
+show_player_position: bool = False
 player_speed: int = 25
 
 # Objects settings
@@ -14,3 +17,5 @@ object_debug: bool = True
 
 # Character settings
 character_show_outline: bool = True
+# Don't open dialog when collided with character
+charector_interaction: bool = True
