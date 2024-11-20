@@ -1,5 +1,6 @@
 import pygame
 from typing import List, TYPE_CHECKING
+from pygame.rect import Rect
 
 from .overlay import ScreenOverlay, Heart
 from .elements import ImageButton
@@ -20,6 +21,40 @@ logger = get_logger(__name__)
 
 
 class Level:
+    """
+    A class to represent a game level.
+
+    Attributes:
+    -----------
+    game : Game
+        The game instance to which this level belongs.
+    buttons : list
+        A list of buttons present in the level.
+    current_scene : int
+        The index of the current scene in the level.
+    objects : List[List[Object]]
+        A list of lists containing objects in each scene of the level.
+    overlay : ScreenOverlay
+        The screen overlay for the level.
+    player : Player | None
+        The player character in the level.
+    bg : list[Background]
+        A list of background images for each scene in the level.
+    walkable_mask : list
+        A list of walkable masks for each scene in the level.
+
+    Methods:
+    --------
+    handle_events(event):
+        Handles events such as mouse clicks.
+    draw():
+        Draws the level, including background, objects, player, buttons, and overlay.
+    check_interaction():
+        Checks for interactions between the player and objects in the current scene.
+    set_scene(scene: int, pos=(0, 0)):
+        Sets the current scene and optionally the player's position.
+    """
+
     def __init__(self, game):
         self.game: Game = game
         self.buttons = []
@@ -45,7 +80,7 @@ class Level:
             self.bg[self.current_scene].draw(screen)
 
         if len(self.walkable_mask) > 0:
-            self.walkable_mask[self.current_scene].draw(screen)
+            self.walkable_mask[self.current_scene].draw()
 
         # Draw objects
         if len(self.objects) > 0 and len(self.objects[self.current_scene]) > 0:
@@ -100,6 +135,8 @@ class Level:
                                 .add("question", obj.dialog)\
                                 .set_element_visible("question", True)\
                                 .set_fullscreen_open(True)
+                elif isinstance(obj, BlockerCharacter):
+                    pass
 
     def set_scene(self, scene: int, pos=(0, 0)):
         self.current_scene = scene
@@ -146,21 +183,17 @@ class LevelOne(Level):
         self.buttons = []
         self.overlay.set_visible(True)
 
-        # create transparent warp door
-        warp_door = pygame.Surface((100, 300), pygame.SRCALPHA)
-
-        self.player = Player((100, 350))
+        self.player = Player((100, 325))
 
         self.objects = [
             [
                 WarpDoor((WIDTH - 100, int(HEIGHT/2) -
-                          120), (100, 200), 1, (117, 407)),
+                          120), (100, 200), 1, (67, 307)),
                 QuestCharacter("Q1_chick", (1650, 300)),
             ],
             [
-                WarpDoor((0, 410), (100, 220), 0, (1717, 413)),
                 WarpDoor((WIDTH - 100, 410),
-                         (100, 210), 2, (117, 197)),
+                         (100, 210), 2, (117, 72)),
                 QuestCharacter("Q2_tiger", (1650, 300)),
             ],
             [
@@ -180,9 +213,22 @@ class LevelOne(Level):
         ]
 
         self.walkable_mask = [
-            WalkableTile("assets/scene/level_1/way1(1_3).png"),
-            WalkableTile("assets/scene/level_1/way1(2_3).png"),
-            WalkableTile("assets/scene/level_1/way1(3_3).png"),
+            WalkableTile([
+                Rect((0, 0), (WIDTH, 425)),
+                Rect((0, 425), (50, 150)),
+                Rect((0, 575), (WIDTH, HEIGHT - 575)),
+            ]),
+            WalkableTile([
+                Rect((0, 0), (WIDTH, 425)),
+                Rect((0, 425), (50, 150)),
+                Rect((0, 575), (WIDTH, HEIGHT - 575)),
+            ]),
+            WalkableTile([
+                Rect((0, 0), (WIDTH, 197)),
+                Rect((0, 422), (817, HEIGHT - 422)),
+                Rect((1142, 422), (817, HEIGHT - 422)),
+                Rect((1617, 0), (WIDTH - 1617, HEIGHT)),
+            ]),
         ]
 
 

@@ -2,7 +2,6 @@ from pygame.transform import scale
 from pygame.surface import Surface
 from pygame.rect import Rect
 
-
 def scale_fit(surface: Surface, rect: Rect) -> tuple[Surface, Rect]:
     """Scale the image to fit the rect while maintaining the aspect ratio
 

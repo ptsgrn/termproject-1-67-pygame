@@ -66,7 +66,7 @@ def create_surface_with_text(text, font_size, text_rgb, bg_rgb=None, font_type: 
     return surface.convert_alpha()
 
 
-class _BaseButton(Sprite):
+class BaseButton(Sprite):
     """A base class for clickable button sprites in Pygame.
 
     This class provides basic button functionality including click detection and action execution.
@@ -110,7 +110,7 @@ class _BaseButton(Sprite):
         return self.rect.collidepoint(mouse_pos)
 
 
-class ImageButton(_BaseButton):
+class ImageButton(BaseButton):
     """
     A button class that displays different images based on mouse interaction.
 

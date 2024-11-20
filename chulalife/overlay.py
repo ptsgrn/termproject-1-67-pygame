@@ -3,7 +3,6 @@ from pygame.rect import Rect
 from pygame.transform import scale
 from pygame.image import load
 from .logger import get_logger
-from .overlay import OverlayObject
 from .game_state import game_state
 from .screen import screen
 

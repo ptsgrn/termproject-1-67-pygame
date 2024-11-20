@@ -25,5 +25,8 @@ object_debug: bool = False
 # Character settings
 character_show_outline: bool = False
 
+# Don't limit boundary on walkable tile
+walkable_tile_interactions: bool = True
+
 # Don't open dialog when collided with character
 charector_interaction: bool = True

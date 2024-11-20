@@ -3,8 +3,8 @@ import pygame
 from pygame.typing import FileLike
 from pygame.surface import Surface
 from pygame.image import load
-from .color import PURPLE
-from .setting import background_debug, walkable_debug
+from .color import PURPLE, GREEN
+from .setting import background_debug, walkable_debug, walkable_tile_interactions
 from .logger import get_logger
 from .screen import screen
 
@@ -43,21 +43,36 @@ class StaticBackground(Background):
 
 
 class WalkableTile:
-    def __init__(self, file_name: str) -> None:
+    def __init__(self, blocked_way_rects: List[pygame.rect.RectType] = [], walkable_way_rects: List[pygame.rect.RectType] = []) -> None:
         self.debug = walkable_debug
-        self.image = load(file_name)
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
+        self.blocked_way_rects: list[pygame.rect.Rect] = blocked_way_rects
+        self.walkable_way_rects: list[pygame.rect.Rect] = walkable_way_rects
 
-    def draw(self, screen: Surface, offset: List[int] = [0, 0]):
+    def draw(self):
         if self.debug:
-            mask_surface = self.mask.to_surface(
-                setcolor=PURPLE, unsetcolor=(0, 0, 0, 0))
-            screen.blit(mask_surface, (self.rect.x +
-                                       offset[0], self.rect.y + offset[1]))
+            for rect in self.blocked_way_rects:
+                pygame.draw.rect(screen, PURPLE, rect, 5)
+            for rect in self.walkable_way_rects:
+                pygame.draw.rect(screen, GREEN, rect, 5)
 
-    def is_walkable(self, player_mask: pygame.mask.Mask, player_rect: pygame.Rect, offset: Tuple[int, int] = (0, 0)) -> bool:
-        # Calculate the offset between the player and tile positions
-        mask_offset = (player_rect.x - (self.rect.x + offset[0]),
-                       player_rect.y - (self.rect.y + offset[1]))
-        return player_mask.overlap(self.mask, mask_offset) is None
+    def is_walkable(self, player_rect: pygame.Rect) -> bool:
+        if not walkable_tile_interactions:
+            return True
+        is_collided = False
+        for rect in self.blocked_way_rects:
+            if player_rect.colliderect(rect):
+                is_collided = True
+                break
+        for rect in self.walkable_way_rects:
+            if player_rect.colliderect(rect):
+                is_collided = False
+                break
+        return not is_collided
+
+    def add_blocked_way(self, *rect: pygame.rect.Rect):
+        self.blocked_way_rects.extend(rect)
+        return self
+    
+    def add_walkable_way(self, *rect: pygame.rect.Rect):
+        self.walkable_way_rects.extend(rect)
+        return self

@@ -1,5 +1,6 @@
 import pygame
 from pygame.transform import scale
+from pygame.sprite import Sprite
 from .color import MAGENTA, ORANGE, GREEN, RED
 from .setting import object_debug, warpdoor_debug, character_show_outline
 from .screen import screen
@@ -9,7 +10,7 @@ from .logger import get_logger
 logger = get_logger(__name__)
 
 
-class Object(pygame.sprite.Sprite):
+class Object(Sprite):
     def __init__(self, image_filename, pos, width_height):
         super().__init__()
         self.image = pygame.image.load(

@@ -4,7 +4,7 @@ from typing import Literal
 from .color import BLUE, WHITE, PURPLE, GREEN
 from .helper import scale_fit
 from .screen import WIDTH, HEIGHT, screen
-from .setting import player_debug, show_player_position, player_speed
+from .setting import player_debug, show_player_position, player_speed, walkable_debug
 from .background import WalkableTile
 from .logger import get_logger
 
@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = player_speed
         self.facing: Literal['down', 'up', 'left', 'right'] = "down"
         self._rect = pygame.Rect(init_pos, width_height)
-        self.__facing_image = {
+        self.facing_image = {
             "up": self.load_image_fit_rect("assets/characters/bunny/face-up.png"),
             "down": self.load_image_fit_rect("assets/characters/bunny/face-down.png"),
             "left": self.load_image_fit_rect("assets/characters/bunny/face-left.png"),
@@ -41,11 +41,8 @@ class Player(pygame.sprite.Sprite):
     def move(self, dx, dy):
         # Calculate new potential position for feet and upper body
         new_rect = self.rect.move(dx, dy)
-        if not self.is_within_walkable_mask():
+        if not self.is_within_walkable_mask(new_rect):
             return
-        if dx != 0 and dy != 0:
-            dx /= math.sqrt(2)
-            dy /= math.sqrt(2)
         if self.is_within_screen(screen, new_rect):
             self.rect = new_rect
         else:
@@ -57,20 +54,10 @@ class Player(pygame.sprite.Sprite):
     def is_within_screen(self, screen: pygame.surface.Surface, new_rect: pygame.rect.Rect) -> bool:
         return new_rect.left >= 0 and new_rect.right <= screen.get_width() and new_rect.top >= 0 and new_rect.bottom <= screen.get_height()
 
-    def is_within_walkable_mask(self):
+    def is_within_walkable_mask(self, new_rect: pygame.rect.Rect) -> bool:
         if self.walkable_mask is None:
             return True
-        return self.walkable_mask.is_walkable(pygame.mask.Mask((self.rect.w, 10)), self.rect)
-
-    @property
-    def foot_rect(self):
-        foot_rect = pygame.rect.Rect(
-            self.rect.left, self.rect.bottom - 10, self.rect.width, 10)
-
-        if self.debug:
-            pygame.draw.rect(screen, GREEN, foot_rect, 2)
-
-        return foot_rect
+        return self.walkable_mask.is_walkable(self.to_foot_rect(new_rect))
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
@@ -92,9 +79,9 @@ class Player(pygame.sprite.Sprite):
 
     @property
     def image(self):
-        self._rect.width = self.__facing_image[self.facing].get_width()
-        self._rect.height = self.__facing_image[self.facing].get_height()
-        return self.__facing_image[self.facing]
+        self._rect.width = self.facing_image[self.facing].get_width()
+        self._rect.height = self.facing_image[self.facing].get_height()
+        return self.facing_image[self.facing]
 
     @property
     def rect(self):
@@ -103,6 +90,17 @@ class Player(pygame.sprite.Sprite):
     @rect.setter
     def rect(self, value: pygame.rect.Rect):
         self._rect = value
+
+    def to_foot_rect(self, new_rect: pygame.rect.Rect):
+        size = 20
+        rect = new_rect.copy()
+        rect.height = size
+        rect.center = new_rect.center
+        rect.top = new_rect.bottom
+        # draw the foot rect
+        if self.debug:
+            pygame.draw.rect(screen, WHITE, rect, 2)
+        return rect
 
 
 if __name__ == "__main__":
