@@ -13,17 +13,17 @@ from .game_state import game_state
 logger = get_logger(__name__)
 
 answers = {
-    "Q1": "I",
-    "Q2": "I",
-    "Q3": "I",
-    "Q4": "I",  # placeholder
-    "Q5": "I",
-    "Q6": "I",
-    "Q7": "I",
-    "Q8": "I",
-    "Q9": "I",
-    "Q10": "I",
-    "Q11": "I",
+    "Q1": "UNIVERSITY",
+    "Q2": "SCIENCE",
+    "Q3": "COMPUTER",
+    "Q4": "MATHEMATICS",
+    "Q5": "PROFESSOR",
+    "Q6": "CALCULUS",
+    "Q7": "LABORATORY",
+    "Q8": "BUS-STOP",
+    "Q9": "LIBRARY",
+    "Q10": "EXAMINATION",
+    "Q11": "WITHDRAW",
 }
 
 
@@ -88,5 +88,5 @@ class Question(OverlayObject):
                         self.notify_text = "Yes Correct!!!"
                         self.status = "done"
                         self.typed_word = ""
-                elif event.unicode.isalpha():
+                elif event.unicode.isalpha() or event.unicode.isdigit() or event.unicode == "-":
                     self.typed_word += event.unicode.upper()

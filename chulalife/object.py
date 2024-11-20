@@ -12,14 +12,12 @@ logger = get_logger(__name__)
 class Object(pygame.sprite.Sprite):
     def __init__(self, image_filename, pos, width_height):
         super().__init__()
-        self.x = pos[0]
-        self.y = pos[1]
-        self.w = width_height[0]
-        self.h = width_height[1]
         self.image = pygame.image.load(
             image_filename).convert_alpha() if image_filename else None
         self.debug = object_debug
         self.debug_color = MAGENTA
+        self.pos = pos
+        self.width_height = width_height
 
     def draw(self):
         if self.debug:
@@ -28,24 +26,24 @@ class Object(pygame.sprite.Sprite):
     @property
     def rect(self):
         if self.image is None:
-            return pygame.rect.Rect(self.x, self.y, self.w, self.h)
-        return self.image.get_rect(topleft=(self.x, self.y))
+            return pygame.rect.Rect(self.pos, self.width_height)
+        return self.image.get_rect(topleft=self.pos)
 
 
 class WarpDoor(Object):
-    def __init__(self, image, pos: tuple[int, int] = (0, 0), width_height: tuple[int, int] = (200, 200), warp_to_scene=0, next_pos=(0, 0), action=None):
+    def __init__(self, pos: tuple[int, int] = (0, 0), width_height: tuple[int, int] = (200, 200), warp_to_scene=0, next_pos=(0, 0), action=None):
         super().__init__(None, pos, width_height)
-        self.image = image
         self._rect = pygame.rect.Rect(pos, width_height)
         self.warpTarget = warp_to_scene
         self.next_pos_x = next_pos[0]
         self.next_pos_y = next_pos[1]
         self.debug = warpdoor_debug
         self.action = action
+        self.surface = pygame.Surface(self._rect.size, pygame.SRCALPHA)
 
     def draw(self):
         screen.blit(
-            self.image,
+            self.surface,
             self._rect
         )
         if self.debug:
@@ -53,7 +51,7 @@ class WarpDoor(Object):
 
 
 class QuestCharacter(Object):
-    def __init__(self, charector_name: str, pos: tuple[int, int] = (0, 0), width_height=(250, 250), question: Question | None = None):
+    def __init__(self, charector_name: str, pos: tuple[int, int] = (0, 0), width_height=(250, 250), after_action=None):
         self.debug_color = ORANGE
         self.name = charector_name
         super().__init__(
@@ -61,23 +59,29 @@ class QuestCharacter(Object):
         self.debug = character_show_outline
         self.image = scale(self.image, width_height)
         self.question_id = charector_name.split("_")[0]
-        self.question = question or Question(self.question_id)
+        self.question = Question(self.question_id)
         self.done = False
+        self.after_action = after_action
 
     def draw(self):
         super(QuestCharacter, self).draw()
         if self.image is None:
             raise ValueError(
                 f"Character image not found: {self.name}")
-        if self.done:
-            # image opacity
-            self.image.set_alpha(128)
+        if not self.done:
+            logger.debug(f"Drawing character {self.name}")
             screen.blit(self.image, self.rect)
         else:
-            screen.blit(self.image, self.rect)
+            logger.debug(f"Character {self.name} is done")
 
     def clear(self):
         self.done = True
+        if self.after_action:
+            self.after_action()
+
+    def set_rect(self, pos):
+        self.rect = pygame.rect.Rect(pos, self.rect.size)
+        return self.rect
 
     @property
     def dialog(self):

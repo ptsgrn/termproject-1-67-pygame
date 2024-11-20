@@ -6,22 +6,35 @@ from pygame.image import load
 from .color import PURPLE
 from .setting import background_debug, walkable_debug
 from .logger import get_logger
+from .screen import screen
 
 logger = get_logger(__name__)
 
 
 class Background:
-    def __init__(self, image_file_name: FileLike) -> None:
+    def __init__(self, image_file_name: FileLike, screen=screen) -> None:
         self.bg_image = load(image_file_name)
         self.debug = background_debug
+        self.screen = screen
 
     def draw(self, screen: Surface, offset: List[int] = [0, 0]):
         logger.error("draw method not implemented")
 
+    def add(self, image_file_name: FileLike) -> None:
+        # load and merge the image
+        self.bg_image = pygame.transform.scale(
+            self.bg_image, (self.screen.get_width(), self.screen.get_height()))
+        new_image = load(image_file_name)
+        new_image = pygame.transform.scale(
+            new_image, (self.screen.get_width(), self.screen.get_height()))
+        self.bg_image.blit(new_image, (0, 0))
+
 
 class StaticBackground(Background):
-    def __init__(self, image_file_name: FileLike) -> None:
+    def __init__(self, image_file_name: FileLike, *image_file_names: FileLike) -> None:
         super().__init__(image_file_name)
+        for file_name in image_file_names:
+            self.add(file_name)
 
     def draw(self, screen: Surface, offset: List[int] = [0, 0]):
         self.bg_image = pygame.transform.scale(

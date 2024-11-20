@@ -1,15 +1,14 @@
 import sys
 import pygame
 from .elements import ScreenOverlay, Heart
-from .levels import WelcomeScreen, Level, GameOver
+from .levels import Level, GameOver, WelcomeScreen
 from .game_state import game_state
-
-FPS = 60
+from .setting import music_volume, background_music, FPS
 
 pygame.init()
+pygame.mixer.init()
 
 
-# Game Class
 class Game:
     def __init__(self):
         self.clock = pygame.time.Clock()
@@ -23,6 +22,9 @@ class Game:
         self.level = level
 
     def run(self):
+        pygame.mixer_music.load(background_music)
+        pygame.mixer_music.set_volume(music_volume)
+        pygame.mixer_music.play(-1)
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
