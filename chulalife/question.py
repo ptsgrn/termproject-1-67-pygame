@@ -4,7 +4,8 @@ from typing import Literal
 from pygame.image import load
 from pygame.rect import Rect
 from .screen import screen, WIDTH, HEIGHT
-from .elements import OverlayObject, TextObject
+from .elements import TextObject
+from .overlay import OverlayObject
 from .setting import charector_interaction
 from .logger import get_logger
 from .color import BLACK, RED
@@ -63,6 +64,9 @@ class Question(OverlayObject):
         if self.notify_text and self.typed_word == "":
             self.notify.draw(screen)
         self.text_input.draw(screen)
+        if self.status == "done":
+            self.notify_text = ""
+            pygame.time.wait(500)
 
     def check_answer(self):
         if self.typed_word == self.correct_word:
@@ -74,6 +78,7 @@ class Question(OverlayObject):
             if not self.visible or self.is_disabled:
                 return
             if event.type == pygame.KEYDOWN:
+                logger.info(f"Event: {event}")
                 if event.key == pygame.K_BACKSPACE:
                     self.typed_word = self.typed_word[:-1]
                 elif event.key == pygame.K_RETURN:
@@ -88,5 +93,5 @@ class Question(OverlayObject):
                         self.notify_text = "Yes Correct!!!"
                         self.status = "done"
                         self.typed_word = ""
-                elif event.unicode.isalpha() or event.unicode.isdigit() or event.unicode == "-":
+                elif event.unicode.isalpha() or event.unicode == "-":
                     self.typed_word += event.unicode.upper()

@@ -1,9 +1,11 @@
 import pygame
-from typing import List, TYPE_CHECKING, TypeVar
-from .elements import ImageButton, ScreenOverlay, Heart
+from typing import List, TYPE_CHECKING
+
+from .overlay import ScreenOverlay, Heart
+from .elements import ImageButton
 from .background import StaticBackground, WalkableTile, Background
 from .helper import scale_fit
-from .color import WHITE, BLUE, GREEN, RED, PURPLE, YELLOW
+from .color import WHITE
 from .player import Player
 from .object import WarpDoor, Object, QuestCharacter, BlockerCharacter
 from .screen import WIDTH, HEIGHT, screen
@@ -13,8 +15,6 @@ from .game_state import game_state
 
 if TYPE_CHECKING:
     from .game import Game
-
-GameType = TypeVar("GameType", bound="Game")  # type: ignore[type-arg]
 
 logger = get_logger(__name__)
 
@@ -165,8 +165,8 @@ class LevelOne(Level):
             ],
             [
                 WarpDoor((0, 197), (100, 200), 1, (1723, 407)),
-                WarpDoor((WIDTH // 2 - 350 // 2, HEIGHT - 100),
-                         (350, 100), 3, (0, 0), lambda: self.game.set_level(LevelTwo(self.game))),
+                WarpDoor((WIDTH // 2 - 250 // 2, HEIGHT - 100),
+                         (250, 100), 3, (0, 0), lambda: self.game.set_level(LevelTwo(self.game))),
                 QuestCharacter("Q3_yellow", (367, 72)),
                 QuestCharacter("Q4_red", (917, 622), (572*0.3, 972*0.3)),
                 BlockerCharacter((1617, 72))
@@ -203,7 +203,7 @@ class LevelTwo(Level):
             [
                 QuestCharacter("Q5_jeab", (850, 175)),
                 QuestCharacter("Q6_cat", (825, 550), (340, 340)),
-                WarpDoor((WIDTH // 2 - 100, HEIGHT - 100), (250, 100),
+                WarpDoor((WIDTH // 2 - 100, HEIGHT - 100), (200, 100),
                          1, (WIDTH // 2 - self.player.rect.w // 2, 20))
             ],
             [
@@ -234,9 +234,6 @@ class LevelThree(Level):
                                after_action=lambda: self.game.set_level(LevelFour(self.game))),
             ]
         ]
-
-
-# Need to implement LevelFour
 
 
 class LevelFour(Level):
@@ -300,6 +297,8 @@ class GameOver(Level):
         self.bg = [
             StaticBackground("assets/scene/game_over/game_over.png")
         ]
+
+        self.player = None
 
     def reset_game(self):
         game_state.hearts = initial_hearts

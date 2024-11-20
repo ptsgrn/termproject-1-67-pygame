@@ -1,6 +1,7 @@
 import sys
 import pygame
-from .elements import ScreenOverlay, Heart
+
+from .overlay import ScreenOverlay, Heart
 from .levels import Level, GameOver, WelcomeScreen
 from .game_state import game_state
 from .setting import music_volume, background_music, FPS
@@ -48,9 +49,9 @@ class Game:
         sys.exit()
 
     def setup(self):
-        pygame.mixer.music.set_volume(music_volume)
-        pygame.mixer.music.load(background_music)
-        pygame.mixer.music.play(-1)
+        pygame.mixer_music.set_volume(music_volume)
+        pygame.mixer_music.load(background_music)
+        pygame.mixer_music.play(-1)
 
 
 if __name__ == "__main__":

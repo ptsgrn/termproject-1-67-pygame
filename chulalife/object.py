@@ -69,19 +69,12 @@ class QuestCharacter(Object):
             raise ValueError(
                 f"Character image not found: {self.name}")
         if not self.done:
-            logger.debug(f"Drawing character {self.name}")
             screen.blit(self.image, self.rect)
-        else:
-            logger.debug(f"Character {self.name} is done")
 
     def clear(self):
         self.done = True
         if self.after_action:
             self.after_action()
-
-    def set_rect(self, pos):
-        self.rect = pygame.rect.Rect(pos, self.rect.size)
-        return self.rect
 
     @property
     def dialog(self):

@@ -1,5 +1,5 @@
 import pygame
-from pygame.surface import Surface
+import math
 from typing import Literal
 from .color import BLUE, WHITE, PURPLE, GREEN
 from .helper import scale_fit
@@ -43,7 +43,9 @@ class Player(pygame.sprite.Sprite):
         new_rect = self.rect.move(dx, dy)
         if not self.is_within_walkable_mask():
             return
-
+        if dx != 0 and dy != 0:
+            dx /= math.sqrt(2)
+            dy /= math.sqrt(2)
         if self.is_within_screen(screen, new_rect):
             self.rect = new_rect
         else:
