@@ -22,9 +22,10 @@ class Game:
         self.level = level
 
     def run(self):
-        pygame.mixer_music.load(background_music)
-        pygame.mixer_music.set_volume(music_volume)
-        pygame.mixer_music.play(-1)
+        # Setting up the game
+        self.setup()
+
+        # Game loop
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -45,6 +46,11 @@ class Game:
 
         pygame.quit()
         sys.exit()
+
+    def setup(self):
+        pygame.mixer.music.set_volume(music_volume)
+        pygame.mixer.music.load(background_music)
+        pygame.mixer.music.play(-1)
 
 
 if __name__ == "__main__":
