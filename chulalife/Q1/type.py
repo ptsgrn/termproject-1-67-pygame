@@ -1,32 +1,6 @@
-import time
 import pygame
-import pygame.event
-from typing import Literal
-from pygame.image import load
-from pygame.rect import Rect
-from .screen import screen, WIDTH, HEIGHT
-from .elements import TextObject
-from .overlay import OverlayObject
-from .setting import charector_interaction
-from .logger import get_logger
-from .color import BLACK, RED
-from .game_state import game_state
-
-logger = get_logger(__name__)
-
-answers = {
-    "Q1": "UNIVERSITY",
-    "Q2": "SCIENCE",
-    "Q3": "COMPUTER",
-    "Q4": "MATHEMATICS",
-    "Q5": "PROFESSOR",
-    "Q6": "CALCULUS",
-    "Q7": "LABORATORY",
-    "Q8": "BUS-STOP",
-    "Q9": "LIBRARY",
-    "Q10": "EXAMINATION",
-    "Q11": "WITHDRAW",
-}
+import sys
+import time
 
 # Initialize Pygame
 pygame.init()
@@ -37,7 +11,7 @@ WIDTH, HEIGHT = screen.get_size()
 pygame.display.set_caption("Text or Die")
 
 # Load and scale background image
-bg_image = load("assets/scene/text_or_die/textordie_time.png")
+bg_image = pygame.image.load("assets/scene/text_or_die/textordie_time.png")
 bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
 
 # Set up fonts
@@ -77,8 +51,8 @@ correct_word = "PYTHON"
 typed_word = ""
 result_message = ""
 
-typed_word_text = TextObject(typed_word, font, BLACK, 400, cursor=True)
-result_text = TextObject(result_message, small_font, RED, 300)
+typed_word_text = TextObject(typed_word, font, (0, 0, 0), 400, cursor=True)
+result_text = TextObject(result_message, small_font, (255, 0, 0), 300)
 
 # Game loop
 running = True
@@ -97,14 +71,12 @@ while running:
             if event.key == pygame.K_BACKSPACE:
                 typed_word = typed_word[:-1]
             elif event.key == pygame.K_RETURN:
-                if typed_word == "":
-                    continue
                 if typed_word == correct_word:
                     result_message = "You win!"
                 else:
                     result_message = "Incorrect word!"
                 typed_word = ""
-            elif event.unicode.isalpha() or event.unicode == "-":
+            else:
                 typed_word += event.unicode.upper()
 
     # Update TextObjects
@@ -122,7 +94,7 @@ while running:
     pygame.display.flip()
 
     # Cap the frame rate
-    clock.tick(FPS)
+
 
 # Quit Pygame
 pygame.quit()
