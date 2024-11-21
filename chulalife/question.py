@@ -1,4 +1,3 @@
-import time
 import pygame
 import pygame.event
 from typing import Literal
@@ -28,102 +27,71 @@ answers = {
     "Q11": "WITHDRAW",
 }
 
-# Initialize Pygame
-pygame.init()
 
-# Set up display for fullscreen
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-WIDTH, HEIGHT = screen.get_size()
-pygame.display.set_caption("Text or Die")
+class Question(OverlayObject):
+    def __init__(self, question_id: str) -> None:
+        super().__init__()
+        self.z_index = 5
+        if not question_id.startswith("Q"):
+            raise ValueError("Question ID must start with 'Q'")
+        self.id = question_id
+        self.image_file_name = f"assets/scene/text_or_die/question/{
+            self.id}.png"
+        self.image = load(self.image_file_name)
+        self.rect = Rect(0, 0, WIDTH, HEIGHT)
+        self.is_disabled = not charector_interaction
+        self.typed_word = ""
+        self.correct_word = answers[self.id]
+        self.text_input = TextObject(
+            self.typed_word, (0, HEIGHT // 2 + HEIGHT // 4 - 28), BLACK, "content", 100, True)
+        self.notify_text = ""
+        self.notify = TextObject(
+            "", (0, HEIGHT // 2 + HEIGHT // 4 + 50), RED, "display", 52)
+        self.status: Literal["active", "done"] = "active"
 
-# Load and scale background image
-bg_image = load("assets/scene/text_or_die/textordie_time.png")
-bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
+    def draw(self):
+        if not self.visible:
+            return
+        if self.is_disabled:
+            logger.warning(
+                "Question is disabled by charector_no_interaction setting")
+            return
+        self.handle_events()
+        self.text_input.update_text(self.typed_word)
+        self.text_input.update_cursor()
+        screen.blit(self.image, self.rect)
+        self.notify.update_text(self.notify_text)
+        if self.notify_text and self.typed_word == "":
+            self.notify.draw(screen)
+        self.text_input.draw(screen)
+        if self.status == "done":
+            self.notify_text = ""
+            pygame.time.wait(500)
 
-# Set up fonts
-font_path = "assets/fonts/2005_iannnnnAMD.ttf"
-font = pygame.font.Font(font_path, 74)
-small_font = pygame.font.Font(font_path, 36)
+    def check_answer(self):
+        if self.typed_word == self.correct_word:
+            return True
+        return False
 
-# TextObject class
-class TextObject:
-    def __init__(self, text, font, color, y, cursor=False):
-        self.font = font
-        self.color = color
-        self.y = y
-        self.cursor = cursor
-        self.update_text(text)
-        self.cursor_visible = True
-        self.cursor_last_switch = time.time()
-
-    def draw(self, screen):
-        screen.blit(self.rendered_text, self.rect)
-        if self.cursor and self.cursor_visible:
-            cursor_rect = pygame.Rect(self.rect.topright, (3, self.rect.height))
-            pygame.draw.rect(screen, self.color, cursor_rect)
-
-    def update_text(self, new_text):
-        self.text = new_text
-        self.rendered_text = self.font.render(self.text, True, self.color)
-        self.rect = self.rendered_text.get_rect(center=(WIDTH // 2, self.y))
-
-    def update_cursor(self):
-        if self.cursor and time.time() - self.cursor_last_switch > 0.5:
-            self.cursor_visible = not self.cursor_visible
-            self.cursor_last_switch = time.time()
-
-# Game variables
-correct_word = "PYTHON"
-typed_word = ""
-result_message = ""
-
-typed_word_text = TextObject(typed_word, font, BLACK, 400, cursor=True)
-result_text = TextObject(result_message, small_font, RED, 300)
-
-# Game loop
-running = True
-clock = pygame.time.Clock()
-FPS = 60
-
-while running:
-    screen.fill((255, 255, 255))
-    screen.blit(bg_image, (0, 0))
-
-    # Check for events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_BACKSPACE:
-                typed_word = typed_word[:-1]
-            elif event.key == pygame.K_RETURN:
-                if typed_word == "":
-                    continue
-                if typed_word == correct_word:
-                    result_message = "You win!"
-                else:
-                    result_message = "Incorrect word!"
-                typed_word = ""
-            elif event.unicode.isalpha() or event.unicode == "-":
-                typed_word += event.unicode.upper()
-
-    # Update TextObjects
-    typed_word_text.update_text(typed_word)
-    result_text.update_text(result_message)
-
-    # Update cursor visibility
-    typed_word_text.update_cursor()
-
-    # Draw TextObjects
-    typed_word_text.draw(screen)
-    result_text.draw(screen)
-
-    # Update display
-    pygame.display.flip()
-
-    # Cap the frame rate
-    clock.tick(FPS)
-
-# Quit Pygame
-pygame.quit()
-sys.exit()
+    def handle_events(self):
+        for event in pygame.event.get():
+            if not self.visible or self.is_disabled:
+                return
+            if event.type == pygame.KEYDOWN:
+                logger.info(f"Event: {event}")
+                if event.key == pygame.K_BACKSPACE:
+                    self.typed_word = self.typed_word[:-1]
+                elif event.key == pygame.K_RETURN:
+                    if self.typed_word == "":
+                        return
+                    if not self.check_answer():
+                        game_state.hearts -= 1
+                        self.typed_word = ""
+                        self.notify_text = f"Incorrect word! {
+                            game_state.hearts} hearts left"
+                    else:
+                        self.notify_text = "Yes Correct!!!"
+                        self.status = "done"
+                        self.typed_word = ""
+                elif event.unicode.isalpha() or event.unicode == "-":
+                    self.typed_word += event.unicode.upper()
