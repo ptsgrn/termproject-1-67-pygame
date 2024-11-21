@@ -13,6 +13,7 @@ class OverlayObject:
     def __init__(self) -> None:
         self.visible = False
         self.z_index = 0
+        self.events = []
 
     def draw(self):
         pass
@@ -52,10 +53,12 @@ class ScreenOverlay:
         self.overlay_objects: Dict[str, OverlayObject] = dict()
         self.visible = False
         self.is_fullscreen_open = False
+        self.events = []
 
     def draw(self):
         # sort overlay objects by z-index, more z-index means latter draw
         for key in sorted(self.overlay_objects.keys(), key=lambda x: self.overlay_objects[x].z_index):
+            self.overlay_objects[key].events = self.events
             self.overlay_objects[key].draw()
 
     def add(self, key, obj: OverlayObject):

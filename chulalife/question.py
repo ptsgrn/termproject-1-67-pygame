@@ -74,7 +74,8 @@ class Question(OverlayObject):
         return False
 
     def handle_events(self):
-        for event in pygame.event.get():
+        logger.info(f"Event: {self.events}")
+        for event in self.events:
             if not self.visible or self.is_disabled:
                 return
             if event.type == pygame.KEYDOWN:

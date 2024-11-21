@@ -17,7 +17,7 @@ warpdoor_debug: bool = False
 
 # Player settings
 show_player_position: bool = True
-player_speed: int = 25
+player_speed: int = 10
 
 # Objects settings
 object_debug: bool = False

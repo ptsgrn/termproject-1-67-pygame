@@ -64,6 +64,7 @@ class Level:
         self.player: Player | None = Player((0, 0))
         self.bg: list[Background] = []
         self.walkable_mask = []
+        self.events = []
 
     def handle_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -71,6 +72,7 @@ class Level:
             for button in self.buttons:
                 if button.is_clicked(mouse_pos):
                     return button.action()
+        
         return None
 
     def draw(self):
@@ -97,6 +99,8 @@ class Level:
         for button in self.buttons:
             button.draw(screen)
 
+
+        self.overlay.events = self.events
         self.overlay.draw()
 
         # Handle keyboard events for player movement
@@ -121,7 +125,6 @@ class Level:
                     self.player.rect.top = obj.next_pos_y
                 elif isinstance(obj, QuestCharacter):
                     logger.debug(f"Player interact with {obj.name}")
-
                     if self.overlay.has_element("question"):
                         if obj.question.status == "done":
                             self.overlay\

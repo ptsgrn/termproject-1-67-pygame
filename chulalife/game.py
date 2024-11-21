@@ -28,8 +28,10 @@ class Game:
 
         # Game loop
         while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+            events = pygame.event.get()
+            self.level.events = events
+            for event in events:
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     self.running = False
                 else:
                     action = self.level.handle_events(event)
